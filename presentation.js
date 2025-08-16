@@ -52,11 +52,11 @@ function createJourneyTimeline() {
     // Timeline data
     const timelineData = [
         { year: "2019", title: "USAF Cyber Defense", description: "Started military service", y: 60, color: "#005288" },
-        { year: "2020", title: "RF Monitoring ML", description: "First ML project", y: 320, color: "#667eea" },
+        { year: "2020", title: "RF Monitoring ML", description: "First ML project", y: 280, color: "#667eea" },
         { year: "2021", title: "Penn State", description: "BS Data Science", y: 60, color: "#764ba2" },
-        { year: "2023", title: "Space Force Intern", description: "Predictive maintenance", y: 320, color: "#00ff88" },
+        { year: "2023", title: "Space Force Intern", description: "Predictive maintenance", y: 280, color: "#00ff88" },
         { year: "2024", title: "1st Edge", description: "Lead AI Engineer", y: 60, color: "#ff6b35" },
-        { year: "2025", title: "UT Austin", description: "MS in AI", y: 320, color: "#667eea" }
+        { year: "2025", title: "UT Austin", description: "MS in AI", y: 280, color: "#667eea" }
     ];
     
     // Create gradient definitions
@@ -407,7 +407,7 @@ function createBottleneckDiagram() {
         { label: "Multiple File Types", icon: "📊", y: 100 },
         { label: "Manual Tracking", icon: "👀", y: 200 },
         { label: "Manual Data Entry", icon: "⌨️", y: 300 },
-        { label: "100+ Hours/Event", icon: "⏰", y: 100 }
+        { label: "100+ Hours/Event", icon: "⏰", y: 400 }
     ];
     
     processingSteps.forEach((step, i) => {
@@ -484,10 +484,10 @@ function createAgentArchitecture() {
         retrieval: { x: 300, y: 150, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍" },
         generator: { x: 500, y: 300, label: "Generator\nAgent", color: "#667eea", icon: "🤖" },
         auditor: { x: 750, y: 50, label: "Auditor/\nReflection", color: "#667eea", icon: "✅" },
-        codeGen: { x: 500, y: 450, label: "SQL Code\nGenerator", color: "#00ff88", icon: "💻" },
+        codeGen: { x: 500, y: 450, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖" },
         questionProc: { x: 300, y: 450, label: "Question\nProcessor", color: "#00ff88", icon: "❓" },
         docParser: { x: 700, y: 450, label: "Document\nParser", color: "#00ff88", icon: "📄" },
-        qaAgent: { x: 900, y: 450, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "📋" },
+        qaAgent: { x: 900, y: 450, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖" },
         tools: { x: 950, y: 350, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
         database: { x: 1100, y: 450, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾" },
         reports: { x: 1300, y: 450, label: "Dynamic\nReports", color: "#00ff88", icon: "📊" },
@@ -912,9 +912,9 @@ function createQAPipeline() {
     
     // Q&A Pipeline flow
     const steps = [
-        { x: 150, y: 200, label: "Template\nDocument", icon: "📄", color: "#764ba2" },
+        { x: 150, y: 200, label: "Participant\nDocument", icon: "📄", color: "#764ba2" },
         { x: 350, y: 200, label: "Classify\nDocument", icon: "🏷️", color: "#667eea" },
-        { x: 550, y: 200, label: "Generate\nQuestions", icon: "❓", color: "#00ff88" },
+        { x: 550, y: 200, label: "Retrieve\nQuestions", icon: "❓", color: "#00ff88" },
         { x: 750, y: 200, label: "Extract\nAnswers", icon: "🧠", color: "#764ba2" },
         { x: 950, y: 200, label: "Update\nDatabase", icon: "💾", color: "#ff6b35" },
         { x: 1150, y: 200, label: "Generate\nReports", icon: "📊", color: "#00ff88" }
@@ -1017,7 +1017,7 @@ function createQAPipeline() {
             .style("font-size", "14px")
             .style("font-style", "italic")
             .style("opacity", 0)
-            .text("Example: \"System Requirements Doc\" → 15 questions → 15 answers → Database → Real-time report")
+            .text("Example: \"System Requirements Doc\" → Classify → Retrieve 15 questions → Extract 15 answers → Database → Real-time report")
             .transition()
             .duration(500)
             .delay(200)
