@@ -62,3 +62,6 @@ desktop.ini
 # Cache
 .cache/
 *.cache
+
+# project instructions
+interview_instructions.md
