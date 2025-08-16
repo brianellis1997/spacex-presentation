@@ -5,7 +5,7 @@ Interactive web-based technical presentation for SpaceX AI Software Engineer int
 ## Viewing Options
 
 ### Option 1: GitHub Pages (Recommended - No Setup Required!)
-🔗 **Just click this link: `https://[your-github-username].github.io/spacex-presentation/`**
+🔗 **Just click this link: `https://brianellis1997.github.io/spacex-presentation/`**
 
 After you push to GitHub and enable GitHub Pages (see setup below), anyone can view the presentation directly in their browser.
 
