@@ -51,12 +51,12 @@ function createJourneyTimeline() {
     
     // Timeline data
     const timelineData = [
-        { year: "2019", title: "USAF Cyber Defense", description: "Started military service", y: 40, color: "#005288" },
-        { year: "2020", title: "RF Monitoring ML", description: "First ML project", y: 340, color: "#667eea" },
-        { year: "2021", title: "Penn State", description: "BS Data Science", y: 40, color: "#764ba2" },
-        { year: "2023", title: "Space Force Intern", description: "Predictive maintenance", y: 340, color: "#00ff88" },
-        { year: "2024", title: "1st Edge", description: "Lead AI Engineer", y: 40, color: "#ff6b35" },
-        { year: "2025", title: "UT Austin", description: "MS in AI", y: 340, color: "#667eea" }
+        { year: "2019", title: "USAF Cyber Defense", description: "Started military service", y: 60, color: "#005288" },
+        { year: "2020", title: "RF Monitoring ML", description: "First ML project", y: 320, color: "#667eea" },
+        { year: "2021", title: "Penn State", description: "BS Data Science", y: 60, color: "#764ba2" },
+        { year: "2023", title: "Space Force Intern", description: "Predictive maintenance", y: 320, color: "#00ff88" },
+        { year: "2024", title: "1st Edge", description: "Lead AI Engineer", y: 60, color: "#ff6b35" },
+        { year: "2025", title: "UT Austin", description: "MS in AI", y: 320, color: "#667eea" }
     ];
     
     // Create gradient definitions
@@ -131,13 +131,13 @@ function createJourneyTimeline() {
     
     // Add event boxes
     const eventBoxes = nodes.append("g")
-        .attr("transform", (d) => `translate(0, ${d.y - height / 2})`);
+        .attr("transform", (d) => `translate(0, ${d.y - height / 2 + 30})`);
     
     // Event box background
     eventBoxes.append("rect")
-        .attr("x", -60)
+        .attr("x", -70)
         .attr("y", -30)
-        .attr("width", 120)
+        .attr("width", 140)
         .attr("height", 60)
         .attr("rx", 10)
         .attr("fill", d => d.color)
@@ -407,7 +407,7 @@ function createBottleneckDiagram() {
         { label: "Multiple File Types", icon: "📊", y: 100 },
         { label: "Manual Tracking", icon: "👀", y: 200 },
         { label: "Manual Data Entry", icon: "⌨️", y: 300 },
-        { label: "100+ Hours/Event", icon: "⏰", y: 400 }
+        { label: "100+ Hours/Event", icon: "⏰", y: 100 }
     ];
     
     processingSteps.forEach((step, i) => {
