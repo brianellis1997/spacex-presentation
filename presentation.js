@@ -51,12 +51,12 @@ function createJourneyTimeline() {
     
     // Timeline data
     const timelineData = [
-        { year: "2019", title: "USAF Cyber Defense", description: "Started military service", y: 100, color: "#005288" },
-        { year: "2020", title: "RF Monitoring ML", description: "First ML project", y: 200, color: "#667eea" },
-        { year: "2022", title: "Penn State", description: "BS Data Science", y: 100, color: "#764ba2" },
-        { year: "2023", title: "Space Force Intern", description: "Predictive maintenance", y: 200, color: "#00ff88" },
-        { year: "2024", title: "1st Edge", description: "Lead AI Engineer", y: 100, color: "#ff6b35" },
-        { year: "2025", title: "UT Austin", description: "MS in AI", y: 200, color: "#667eea" }
+        { year: "2019", title: "USAF Cyber Defense", description: "Started military service", y: 80, color: "#005288" },
+        { year: "2020", title: "RF Monitoring ML", description: "First ML project", y: 220, color: "#667eea" },
+        { year: "2021", title: "Penn State", description: "BS Data Science", y: 80, color: "#764ba2" },
+        { year: "2023", title: "Space Force Intern", description: "Predictive maintenance", y: 220, color: "#00ff88" },
+        { year: "2024", title: "1st Edge", description: "Lead AI Engineer", y: 80, color: "#ff6b35" },
+        { year: "2025", title: "UT Austin", description: "MS in AI", y: 220, color: "#667eea" }
     ];
     
     // Create gradient definitions
@@ -404,10 +404,10 @@ function createBottleneckDiagram() {
     
     // Manual processing on the right
     const processingSteps = [
-        { label: "Excel Files", icon: "📊", y: 100 },
-        { label: "Manual Review", icon: "👀", y: 200 },
-        { label: "Data Entry", icon: "⌨️", y: 300 },
-        { label: "100+ Hours", icon: "⏰", y: 400 }
+        { label: "Multiple File Types", icon: "📊", y: 100 },
+        { label: "Manual Tracking", icon: "👀", y: 200 },
+        { label: "Manual Data Entry", icon: "⌨️", y: 300 },
+        { label: "100+ Hours/Event", icon: "⏰", y: 400 }
     ];
     
     processingSteps.forEach((step, i) => {
@@ -483,12 +483,12 @@ function createAgentArchitecture() {
         user: { x: 100, y: 300, label: "User Input", color: "#667eea", icon: "👤" },
         retrieval: { x: 300, y: 150, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍" },
         generator: { x: 500, y: 300, label: "Generator\nAgent", color: "#667eea", icon: "🤖" },
-        auditor: { x: 700, y: 100, label: "Auditor/\nReflection", color: "#667eea", icon: "✅" },
+        auditor: { x: 750, y: 50, label: "Auditor/\nReflection", color: "#667eea", icon: "✅" },
         codeGen: { x: 500, y: 450, label: "SQL Code\nGenerator", color: "#00ff88", icon: "💻" },
         questionProc: { x: 300, y: 450, label: "Question\nProcessor", color: "#00ff88", icon: "❓" },
         docParser: { x: 700, y: 450, label: "Document\nParser", color: "#00ff88", icon: "📄" },
         qaAgent: { x: 900, y: 450, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "📋" },
-        tools: { x: 900, y: 300, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
+        tools: { x: 950, y: 350, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
         database: { x: 1100, y: 450, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾" },
         reports: { x: 1300, y: 450, label: "Dynamic\nReports", color: "#00ff88", icon: "📊" },
         output: { x: 1100, y: 300, label: "User Output", color: "#667eea", icon: "📤" }
@@ -501,10 +501,10 @@ function createAgentArchitecture() {
         { source: "generator", target: "auditor", label: "validate" },
         { source: "auditor", target: "generator", label: "retry", curved: true },
         { source: "auditor", target: "output", label: "approved" },
-        { source: "generator", target: "codeGen", label: "SQL" },
+        { source: "generator", target: "codeGen", label: "sql" },
         { source: "generator", target: "questionProc", label: "questions" },
         { source: "generator", target: "docParser", label: "docs" },
-        { source: "generator", target: "tools", label: "tools" },
+        { source: "generator", target: "tools", label: "api" },
         { source: "codeGen", target: "generator", label: "SQL" },
         { source: "questionProc", target: "generator", label: "questions" },
         { source: "docParser", target: "qaAgent", label: "classified" },
@@ -718,17 +718,18 @@ function createRAGPipeline() {
     
     // Pipeline stages
     const stages = [
-        { x: 150, y: 225, label: "Documents", icon: "📄", color: "#667eea" },
-        { x: 350, y: 225, label: "Text Extraction", icon: "🔤", color: "#764ba2" },
-        { x: 550, y: 150, label: "Embeddings", icon: "🔢", color: "#00ff88" },
-        { x: 550, y: 300, label: "Keywords/NER", icon: "🏷️", color: "#ff6b35" },
-        { x: 750, y: 225, label: "pgvector DB", icon: "🗄️", color: "#667eea" },
-        { x: 950, y: 225, label: "Hybrid Search", icon: "🔍", color: "#764ba2" }
+        { x: 120, y: 225, label: "Documents", icon: "📄", color: "#667eea" },
+        { x: 280, y: 225, label: "Dolphin AI", icon: "🐬", color: "#00ff88" },
+        { x: 440, y: 225, label: "Text/Image Extract", icon: "🔤", color: "#764ba2" },
+        { x: 620, y: 150, label: "Embeddings", icon: "🔢", color: "#00ff88" },
+        { x: 620, y: 300, label: "Keywords/NER", icon: "🏷️", color: "#ff6b35" },
+        { x: 800, y: 225, label: "pgvector DB", icon: "🗄️", color: "#667eea" },
+        { x: 980, y: 225, label: "Hybrid Search", icon: "🔍", color: "#764ba2" }
     ];
     
     // Draw connections
     const connections = [
-        [0, 1], [1, 2], [1, 3], [2, 4], [3, 4], [4, 5]
+        [0, 1], [1, 2], [2, 3], [2, 4], [3, 5], [4, 5], [5, 6]
     ];
     
     connections.forEach((conn, i) => {
