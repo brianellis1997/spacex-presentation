@@ -45,19 +45,7 @@ Best viewed in:
 - Live architecture diagrams
 - Animated data flow demonstrations
 - Performance metrics charts
-- Responsive design optimized for 1920x1080 resolution
-
-## GitHub Pages Setup (One-Time Setup)
-
-To enable the presentation link:
-
-1. Push this repo to GitHub
-2. Go to your repo Settings → Pages
-3. Under "Source", select "Deploy from a branch"
-4. Choose "main" branch and "/ (root)" folder
-5. Click Save
-6. Wait 2-3 minutes for deployment
-7. Your presentation will be live at: `https://[your-username].github.io/spacex-presentation/`
+- Responsive design optimized for 1920x1080 resolutions
 
 ## Project Topic
 
