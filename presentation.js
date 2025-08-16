@@ -51,12 +51,12 @@ function createJourneyTimeline() {
     
     // Timeline data
     const timelineData = [
-        { year: "2019", title: "USAF Cyber Defense", description: "Started military service", y: 60, color: "#005288" },
-        { year: "2020", title: "RF Monitoring ML", description: "First ML project", y: 240, color: "#667eea" },
-        { year: "2021", title: "Penn State", description: "BS Data Science", y: 60, color: "#764ba2" },
-        { year: "2023", title: "Space Force Intern", description: "Predictive maintenance", y: 240, color: "#00ff88" },
-        { year: "2024", title: "1st Edge", description: "Lead AI Engineer", y: 60, color: "#ff6b35" },
-        { year: "2025", title: "UT Austin", description: "MS in AI", y: 240, color: "#667eea" }
+        { year: "2019", title: "USAF Cyber Defense", description: "Started military service", y: 40, color: "#005288" },
+        { year: "2020", title: "RF Monitoring ML", description: "First ML project", y: 260, color: "#667eea" },
+        { year: "2021", title: "Penn State", description: "BS Data Science", y: 40, color: "#764ba2" },
+        { year: "2023", title: "Space Force Intern", description: "Predictive maintenance", y: 260, color: "#00ff88" },
+        { year: "2024", title: "1st Edge", description: "Lead AI Engineer", y: 40, color: "#ff6b35" },
+        { year: "2025", title: "UT Austin", description: "MS in AI", y: 260, color: "#667eea" }
     ];
     
     // Create gradient definitions
