@@ -485,7 +485,7 @@ function createAgentArchitecture() {
         generator: { x: 500, y: 300, label: "Generator\nAgent", color: "#667eea", icon: "🤖" },
         auditor: { x: 750, y: 50, label: "Auditor/\nReflection", color: "#667eea", icon: "✅" },
         codeGen: { x: 500, y: 450, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖" },
-        questionProc: { x: 300, y: 450, label: "Question\nProcessor", color: "#00ff88", icon: "❓" },
+        questionProc: { x: 300, y: 450, label: "Question\nProcessor", color: "#00ff88", icon: "🔍" },
         docParser: { x: 700, y: 450, label: "Document\nParser", color: "#00ff88", icon: "📄" },
         qaAgent: { x: 900, y: 450, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖" },
         tools: { x: 950, y: 350, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
@@ -503,9 +503,11 @@ function createAgentArchitecture() {
         { source: "auditor", target: "output", label: "approved" },
         { source: "generator", target: "codeGen", label: "sql" },
         { source: "generator", target: "docParser", label: "docs" },
+        { source: "generator", target: "questionProc", label: "classify" },
         { source: "generator", target: "tools", label: "api" },
         { source: "codeGen", target: "generator", label: "results" },
         { source: "docParser", target: "qaAgent", label: "classified" },
+        { source: "questionProc", target: "qaAgent", label: "questions" },
         { source: "qaAgent", target: "database", label: "answers" },
         { source: "database", target: "reports", label: "generate" },
         { source: "tools", target: "generator", label: "results" }
@@ -546,16 +548,28 @@ function createAgentArchitecture() {
             .attr('opacity', 0.6)
             .attr('stroke-dashoffset', 0);
         
-        // Add label
+        // Add label with offset for curved paths
         const labelX = (source.x + target.x) / 2;
-        const labelY = (source.y + target.y) / 2;
+        let labelY = (source.y + target.y) / 2;
+        
+        // Offset curved path labels
+        if (link.curved) {
+            labelY -= 25;
+        }
+        
+        // Offset labels for bidirectional arrows
+        let labelOffset = 0;
+        if (link.source === 'generator' && link.target === 'auditor') labelOffset = -10;
+        if (link.source === 'auditor' && link.target === 'generator') labelOffset = 10;
+        if (link.source === 'generator' && link.target === 'tools') labelOffset = -8;
+        if (link.source === 'tools' && link.target === 'generator') labelOffset = 8;
         
         svg.append('text')
             .attr('x', labelX)
-            .attr('y', labelY - 5)
+            .attr('y', labelY - 5 + labelOffset)
             .attr('text-anchor', 'middle')
             .attr('fill', '#b0b0b0')
-            .style('font-size', '12px')
+            .style('font-size', '11px')
             .style('opacity', 0)
             .text(link.label)
             .transition()
