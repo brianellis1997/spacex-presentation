@@ -494,7 +494,7 @@ function createAgentArchitecture() {
         tools: { x: 950, y: 350, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
         database: { x: 1100, y: 450, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾" },
         reports: { x: 1300, y: 450, label: "Dynamic\nReports", color: "#00ff88", icon: "📊" },
-        output: { x: 1100, y: 300, label: "User Output", color: "#667eea", icon: "📤" }
+        output: { x: 1100, y: 250, label: "User Output", color: "#667eea", icon: "📤" }
     };
     
     // Create links - updated with Q&A flow (auditor routes to output, not generator)
@@ -504,7 +504,7 @@ function createAgentArchitecture() {
         { source: "user", target: "retrieval", label: "auto", agentic: false },
         { source: "retrieval", target: "generator", label: "context", agentic: false },
         { source: "generator", target: "auditor", label: "validate", agentic: false },
-        { source: "auditor", target: "generator", label: "retry", curved: true, agentic: true },
+        { source: "auditor", target: "generator", label: "retry", curved: true, curveOffset: -60, agentic: true },
         { source: "auditor", target: "output", label: "approved", agentic: true },
         { source: "generator", target: "codeGen", label: "sql", agentic: true },
         { source: "generator", target: "docParser", label: "docs", agentic: true },
@@ -527,7 +527,8 @@ function createAgentArchitecture() {
         if (link.curved) {
             // Curved path for retry loop
             const midX = (source.x + target.x) / 2;
-            const midY = Math.min(source.y, target.y) - 50;
+            const offset = link.curveOffset || -50;
+            const midY = Math.min(source.y, target.y) + offset;
             path = `M ${source.x} ${source.y} Q ${midX} ${midY} ${target.x} ${target.y}`;
         } else {
             path = `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
@@ -575,25 +576,27 @@ function createAgentArchitecture() {
             labelY -= 25;
         }
         
-        // Offset labels for bidirectional arrows
-        let labelOffset = 0;
-        if (link.source === 'generator' && link.target === 'auditor') labelOffset = -20;
-        if (link.source === 'auditor' && link.target === 'generator') labelOffset = 20;
-        if (link.source === 'generator' && link.target === 'tools') labelOffset = -15;
-        if (link.source === 'tools' && link.target === 'generator') labelOffset = 15;
+        // Skip labels for return arrows to reduce clutter
+        const skipLabel = (
+            (link.source === 'auditor' && link.target === 'generator') ||
+            (link.source === 'tools' && link.target === 'generator') ||
+            (link.source === 'codeGen' && link.target === 'generator')
+        );
         
-        svg.append('text')
-            .attr('x', labelX)
-            .attr('y', labelY - 5 + labelOffset)
-            .attr('text-anchor', 'middle')
-            .attr('fill', '#b0b0b0')
-            .style('font-size', '11px')
-            .style('opacity', 0)
-            .text(link.label)
-            .transition()
-            .duration(500)
-            .delay(500 + i * 100)
-            .style('opacity', 1);
+        if (!skipLabel) {
+            svg.append('text')
+                .attr('x', labelX)
+                .attr('y', labelY - 5)
+                .attr('text-anchor', 'middle')
+                .attr('fill', '#b0b0b0')
+                .style('font-size', '11px')
+                .style('opacity', 0)
+                .text(link.label)
+                .transition()
+                .duration(500)
+                .delay(500 + i * 100)
+                .style('opacity', 1);
+        }
     });
     
     // Draw nodes
