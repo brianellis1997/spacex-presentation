@@ -142,6 +142,14 @@
     letter-spacing: 0.05em;
 }
 
+.metric-detail {
+    display: block;
+    font-size: 0.4em;
+    color: #888;
+    font-style: italic;
+    margin-top: 3px;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }

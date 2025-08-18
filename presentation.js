@@ -143,7 +143,8 @@ function createJourneyTimeline() {
         .attr("fill", d => d.color)
         .attr("fill-opacity", 0.1)
         .attr("stroke", d => d.color)
-        .attr("stroke-width", 1)
+        .attr("stroke-width", 2)
+        .attr("stroke-opacity", 0.8)
         .style("opacity", 0)
         .transition()
         .duration(600)
@@ -232,9 +233,11 @@ function initializeVisualization(slideId) {
             break;
         case 'rag-pipeline':
             createRAGPipeline();
+            createSQLGeneratorFlow();
             break;
         case 'document-processing':
             createDocumentPipeline();
+            createClassificationHeatmap();
             break;
         case 'evaluation':
             createEvaluationChart();
@@ -495,22 +498,24 @@ function createAgentArchitecture() {
     };
     
     // Create links - updated with Q&A flow (auditor routes to output, not generator)
+    // agentic: true means the generator makes a decision to route (dashed line)
+    // agentic: false means automatic workflow (solid line)
     const links = [
-        { source: "user", target: "retrieval", label: "auto" },
-        { source: "retrieval", target: "generator", label: "context" },
-        { source: "generator", target: "auditor", label: "validate" },
-        { source: "auditor", target: "generator", label: "retry", curved: true },
-        { source: "auditor", target: "output", label: "approved" },
-        { source: "generator", target: "codeGen", label: "sql" },
-        { source: "generator", target: "docParser", label: "docs" },
-        { source: "generator", target: "questionProc", label: "classify" },
-        { source: "generator", target: "tools", label: "api" },
-        { source: "codeGen", target: "generator", label: "results" },
-        { source: "docParser", target: "qaAgent", label: "classified" },
-        { source: "questionProc", target: "qaAgent", label: "questions" },
-        { source: "qaAgent", target: "database", label: "answers" },
-        { source: "database", target: "reports", label: "generate" },
-        { source: "tools", target: "generator", label: "results" }
+        { source: "user", target: "retrieval", label: "auto", agentic: false },
+        { source: "retrieval", target: "generator", label: "context", agentic: false },
+        { source: "generator", target: "auditor", label: "validate", agentic: false },
+        { source: "auditor", target: "generator", label: "retry", curved: true, agentic: true },
+        { source: "auditor", target: "output", label: "approved", agentic: true },
+        { source: "generator", target: "codeGen", label: "sql", agentic: true },
+        { source: "generator", target: "docParser", label: "docs", agentic: true },
+        { source: "generator", target: "questionProc", label: "classify", agentic: true },
+        { source: "generator", target: "tools", label: "api", agentic: true },
+        { source: "codeGen", target: "generator", label: "results", agentic: false },
+        { source: "docParser", target: "qaAgent", label: "classified", agentic: false },
+        { source: "questionProc", target: "qaAgent", label: "questions", agentic: false },
+        { source: "qaAgent", target: "database", label: "answers", agentic: false },
+        { source: "database", target: "reports", label: "generate", agentic: false },
+        { source: "tools", target: "generator", label: "results", agentic: false }
     ];
     
     // Draw links
@@ -528,25 +533,38 @@ function createAgentArchitecture() {
             path = `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
         }
         
-        svg.append('path')
+        const pathElement = svg.append('path')
             .attr('d', path)
-            .attr('stroke', '#667eea')
+            .attr('stroke', link.agentic ? '#ff6b35' : '#667eea')
             .attr('stroke-width', 2)
             .attr('fill', 'none')
             .attr('marker-end', 'url(#arrowhead)')
-            .attr('opacity', 0)
-            .attr('stroke-dasharray', function() {
-                const length = this.getTotalLength();
-                return length + ' ' + length;
-            })
-            .attr('stroke-dashoffset', function() {
-                return this.getTotalLength();
-            })
-            .transition()
-            .duration(1000)
-            .delay(i * 100)
-            .attr('opacity', 0.6)
-            .attr('stroke-dashoffset', 0);
+            .attr('opacity', 0);
+        
+        if (link.agentic) {
+            // Dashed line for agentic decisions
+            pathElement
+                .attr('stroke-dasharray', '8,4')
+                .transition()
+                .duration(500)
+                .delay(i * 100)
+                .attr('opacity', 0.7);
+        } else {
+            // Animated solid line for workflows
+            pathElement
+                .attr('stroke-dasharray', function() {
+                    const length = this.getTotalLength();
+                    return length + ' ' + length;
+                })
+                .attr('stroke-dashoffset', function() {
+                    return this.getTotalLength();
+                })
+                .transition()
+                .duration(1000)
+                .delay(i * 100)
+                .attr('opacity', 0.6)
+                .attr('stroke-dashoffset', 0);
+        }
         
         // Add label with offset for curved paths
         const labelX = (source.x + target.x) / 2;
@@ -559,10 +577,10 @@ function createAgentArchitecture() {
         
         // Offset labels for bidirectional arrows
         let labelOffset = 0;
-        if (link.source === 'generator' && link.target === 'auditor') labelOffset = -10;
-        if (link.source === 'auditor' && link.target === 'generator') labelOffset = 10;
-        if (link.source === 'generator' && link.target === 'tools') labelOffset = -8;
-        if (link.source === 'tools' && link.target === 'generator') labelOffset = 8;
+        if (link.source === 'generator' && link.target === 'auditor') labelOffset = -20;
+        if (link.source === 'auditor' && link.target === 'generator') labelOffset = 20;
+        if (link.source === 'generator' && link.target === 'tools') labelOffset = -15;
+        if (link.source === 'tools' && link.target === 'generator') labelOffset = 15;
         
         svg.append('text')
             .attr('x', labelX)
@@ -1294,6 +1312,306 @@ function createScalabilityViz() {
                 .style("opacity", 1);
         });
     });
+}
+
+// SQL Code Generator Flow Visualization
+function createSQLGeneratorFlow() {
+    // Clear any existing diagram
+    d3.select("#sql-generator-flow").selectAll("*").remove();
+    
+    // Create container for SQL flow if it doesn't exist
+    const ragSection = d3.select("#rag-pipeline .rag-visualization");
+    if (ragSection.select("#sql-generator-flow").empty()) {
+        ragSection.append("div")
+            .attr("id", "sql-generator-flow")
+            .style("margin-top", "20px")
+            .style("text-align", "center");
+        
+        ragSection.select("#sql-generator-flow")
+            .append("h4")
+            .style("color", "#667eea")
+            .style("margin-bottom", "10px")
+            .text("SQL Code Generator Pipeline");
+    }
+    
+    const svg = d3.select("#sql-generator-flow")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "300")
+        .attr("viewBox", "0 0 1200 300");
+    
+    // Define flow steps
+    const steps = [
+        { x: 50, y: 150, width: 120, height: 60, label: "User Query", example: "\"Show me contracts\nby status\"", color: "#667eea" },
+        { x: 220, y: 150, width: 140, height: 60, label: "MCP SQL\nCode Generator", example: "Agent analyzes\nintent", color: "#00ff88" },
+        { x: 410, y: 150, width: 130, height: 60, label: "PostgreSQL\nSchema", example: "contracts table\nschema retrieved", color: "#764ba2" },
+        { x: 590, y: 150, width: 120, height: 60, label: "SQL Query\nGenerated", example: "SELECT status,\nCOUNT(*) FROM...", color: "#ff6b35" },
+        { x: 760, y: 150, width: 120, height: 60, label: "Execute\nQuery", example: "PostgreSQL\nexecution", color: "#667eea" },
+        { x: 930, y: 150, width: 120, height: 60, label: "Results to\nGenerator", example: "Structured\ndata returned", color: "#00ff88" }
+    ];
+    
+    // Draw connecting arrows
+    for (let i = 0; i < steps.length - 1; i++) {
+        const start = steps[i];
+        const end = steps[i + 1];
+        
+        svg.append("path")
+            .attr("d", `M ${start.x + start.width} ${start.y + start.height/2} L ${end.x} ${end.y + end.height/2}`)
+            .attr("stroke", "#764ba2")
+            .attr("stroke-width", 2)
+            .attr("fill", "none")
+            .attr("marker-end", "url(#sql-arrow)")
+            .style("opacity", 0)
+            .transition()
+            .duration(600)
+            .delay(i * 300)
+            .style("opacity", 0.8);
+    }
+    
+    // Define arrow marker for SQL flow
+    svg.append("defs")
+        .append("marker")
+        .attr("id", "sql-arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 8)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#764ba2");
+    
+    // Draw step boxes
+    steps.forEach((step, i) => {
+        const g = svg.append("g")
+            .attr("transform", `translate(${step.x}, ${step.y})`)
+            .style("opacity", 0);
+        
+        // Background box
+        g.append("rect")
+            .attr("width", step.width)
+            .attr("height", step.height)
+            .attr("rx", 8)
+            .attr("fill", step.color)
+            .attr("fill-opacity", 0.1)
+            .attr("stroke", step.color)
+            .attr("stroke-width", 2);
+        
+        // Label
+        g.append("text")
+            .attr("x", step.width/2)
+            .attr("y", 20)
+            .attr("text-anchor", "middle")
+            .attr("fill", step.color)
+            .style("font-weight", "bold")
+            .style("font-size", "14px")
+            .text(step.label.split('\n')[0]);
+        
+        if (step.label.includes('\n')) {
+            g.append("text")
+                .attr("x", step.width/2)
+                .attr("y", 35)
+                .attr("text-anchor", "middle")
+                .attr("fill", step.color)
+                .style("font-weight", "bold")
+                .style("font-size", "14px")
+                .text(step.label.split('\n')[1]);
+        }
+        
+        // Example text
+        g.append("text")
+            .attr("x", step.width/2)
+            .attr("y", 50)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#b0b0b0")
+            .style("font-size", "10px")
+            .text(step.example.split('\n')[0]);
+        
+        if (step.example.includes('\n')) {
+            g.append("text")
+                .attr("x", step.width/2)
+                .attr("y", 62)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#b0b0b0")
+                .style("font-size", "10px")
+                .text(step.example.split('\n')[1]);
+        }
+        
+        // Animate in
+        g.transition()
+            .duration(500)
+            .delay(i * 300)
+            .style("opacity", 1);
+    });
+}
+
+// Classification Accuracy Heatmap
+function createClassificationHeatmap() {
+    // Clear any existing heatmap
+    d3.select("#classification-heatmap").selectAll("*").remove();
+    
+    const svg = d3.select("#classification-heatmap")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "200")
+        .attr("viewBox", "0 0 600 200");
+    
+    // Sample accuracy data for 15 document types
+    const documentTypes = [
+        { name: "System Requirements", accuracy: 0.99, docs: 245 },
+        { name: "Technical Specs", accuracy: 0.98, docs: 189 },
+        { name: "Test Plans", accuracy: 1.00, docs: 134 },
+        { name: "Safety Reports", accuracy: 0.97, docs: 167 },
+        { name: "Training Manuals", accuracy: 0.99, docs: 203 },
+        { name: "Maintenance Logs", accuracy: 0.98, docs: 278 },
+        { name: "Compliance Docs", accuracy: 1.00, docs: 156 },
+        { name: "Budget Reports", accuracy: 0.96, docs: 198 },
+        { name: "Personnel Files", accuracy: 0.99, docs: 234 },
+        { name: "Equipment Lists", accuracy: 0.98, docs: 145 },
+        { name: "Project Plans", accuracy: 0.99, docs: 189 },
+        { name: "Status Updates", accuracy: 0.97, docs: 267 },
+        { name: "Meeting Notes", accuracy: 0.95, docs: 123 },
+        { name: "Policy Docs", accuracy: 1.00, docs: 178 },
+        { name: "Change Orders", accuracy: 0.98, docs: 198 }
+    ];
+    
+    // Create grid layout
+    const cols = 5;
+    const rows = 3;
+    const cellWidth = 100;
+    const cellHeight = 50;
+    const startX = 50;
+    const startY = 25;
+    
+    // Color scale for accuracy
+    const colorScale = d3.scaleLinear()
+        .domain([0.95, 1.0])
+        .range(["#ff6b35", "#00ff88"]);
+    
+    // Create heatmap cells
+    documentTypes.forEach((doc, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const x = startX + col * cellWidth;
+        const y = startY + row * cellHeight;
+        
+        const g = svg.append("g")
+            .attr("transform", `translate(${x}, ${y})`)
+            .style("opacity", 0);
+        
+        // Cell background
+        g.append("rect")
+            .attr("width", cellWidth - 5)
+            .attr("height", cellHeight - 5)
+            .attr("rx", 4)
+            .attr("fill", colorScale(doc.accuracy))
+            .attr("fill-opacity", 0.8)
+            .attr("stroke", colorScale(doc.accuracy))
+            .attr("stroke-width", 1);
+        
+        // Document type name
+        g.append("text")
+            .attr("x", (cellWidth - 5) / 2)
+            .attr("y", 15)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#fff")
+            .style("font-size", "10px")
+            .style("font-weight", "bold")
+            .text(doc.name.length > 12 ? doc.name.substring(0, 10) + "..." : doc.name);
+        
+        // Accuracy percentage
+        g.append("text")
+            .attr("x", (cellWidth - 5) / 2)
+            .attr("y", 30)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#fff")
+            .style("font-size", "14px")
+            .style("font-weight", "bold")
+            .text((doc.accuracy * 100).toFixed(0) + "%");
+        
+        // Document count
+        g.append("text")
+            .attr("x", (cellWidth - 5) / 2)
+            .attr("y", 42)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#e0e0e0")
+            .style("font-size", "8px")
+            .text(doc.docs + " docs");
+        
+        // Animate in
+        g.transition()
+            .duration(400)
+            .delay(i * 100)
+            .style("opacity", 1);
+        
+        // Add hover effects
+        g.on("mouseover", function() {
+            d3.select(this).select("rect")
+                .transition()
+                .duration(200)
+                .attr("fill-opacity", 1)
+                .attr("stroke-width", 2);
+        })
+        .on("mouseout", function() {
+            d3.select(this).select("rect")
+                .transition()
+                .duration(200)
+                .attr("fill-opacity", 0.8)
+                .attr("stroke-width", 1);
+        });
+    });
+    
+    // Add legend
+    const legend = svg.append("g")
+        .attr("transform", "translate(520, 25)");
+    
+    legend.append("text")
+        .attr("x", 0)
+        .attr("y", 10)
+        .attr("fill", "#b0b0b0")
+        .style("font-size", "12px")
+        .style("font-weight", "bold")
+        .text("Accuracy");
+    
+    // Color gradient legend
+    const gradientId = "accuracy-gradient";
+    const gradient = svg.append("defs")
+        .append("linearGradient")
+        .attr("id", gradientId)
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%");
+    
+    gradient.append("stop")
+        .attr("offset", "0%")
+        .style("stop-color", "#ff6b35");
+    
+    gradient.append("stop")
+        .attr("offset", "100%")
+        .style("stop-color", "#00ff88");
+    
+    legend.append("rect")
+        .attr("x", 0)
+        .attr("y", 15)
+        .attr("width", 50)
+        .attr("height", 10)
+        .attr("fill", `url(#${gradientId})`);
+    
+    legend.append("text")
+        .attr("x", 0)
+        .attr("y", 35)
+        .attr("fill", "#b0b0b0")
+        .style("font-size", "10px")
+        .text("95%");
+    
+    legend.append("text")
+        .attr("x", 35)
+        .attr("y", 35)
+        .attr("fill", "#b0b0b0")
+        .style("font-size", "10px")
+        .text("100%");
 }
 
 // Code tab switcher
