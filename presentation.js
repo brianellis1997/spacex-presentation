@@ -483,39 +483,53 @@ function createAgentArchitecture() {
     
     // Node positions - adjusted layout to include Q&A Agent
     const nodes = {
-        user: { x: 100, y: 300, label: "User Input", color: "#667eea", icon: "👤" },
-        retrieval: { x: 300, y: 150, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍" },
-        generator: { x: 500, y: 300, label: "Generator\nAgent", color: "#667eea", icon: "🤖" },
-        auditor: { x: 750, y: 50, label: "Auditor/\nReflection", color: "#667eea", icon: "✅" },
-        codeGen: { x: 500, y: 450, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖" },
-        questionProc: { x: 300, y: 450, label: "Question\nProcessor", color: "#00ff88", icon: "🔍" },
-        docParser: { x: 700, y: 450, label: "Document\nParser", color: "#00ff88", icon: "📄" },
-        qaAgent: { x: 900, y: 450, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖" },
-        tools: { x: 950, y: 350, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
-        database: { x: 1100, y: 450, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾" },
-        reports: { x: 1300, y: 450, label: "Dynamic\nReports", color: "#00ff88", icon: "📊" },
-        output: { x: 1100, y: 250, label: "User Output", color: "#667eea", icon: "📤" }
+        // Main flow - horizontal line
+        user: { x: 100, y: 200, label: "User Input", color: "#667eea", icon: "👤" },
+        retrieval: { x: 300, y: 200, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍" },
+        generator: { x: 500, y: 200, label: "Generator\nAgent", color: "#667eea", icon: "🤖" },
+        auditor: { x: 700, y: 200, label: "Auditor/\nReflection", color: "#00ff88", icon: "✅" },
+        output: { x: 900, y: 200, label: "User Output", color: "#667eea", icon: "📤" },
+        
+        // Specialized agents - second row
+        codeGen: { x: 400, y: 350, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖" },
+        tools: { x: 600, y: 350, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
+        
+        // Tools & Resources - third row (Q&A pipeline)
+        docParser: { x: 400, y: 450, label: "Document\nParser", color: "#ff6b35", icon: "📄" },
+        questionProc: { x: 600, y: 450, label: "Question\nProcessor", color: "#ff6b35", icon: "🔍" },
+        qaAgent: { x: 800, y: 450, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖" },
+        database: { x: 1000, y: 450, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾" },
+        reports: { x: 1200, y: 450, label: "Dynamic\nReports", color: "#ff6b35", icon: "📊" }
     };
     
-    // Create links - updated with Q&A flow (auditor routes to output, not generator)
+    // Create links - corrected flow and agentic decisions
     // agentic: true means the generator makes a decision to route (dashed line)
     // agentic: false means automatic workflow (solid line)
     const links = [
+        // Main flow
         { source: "user", target: "retrieval", label: "auto", agentic: false },
         { source: "retrieval", target: "generator", label: "context", agentic: false },
         { source: "generator", target: "auditor", label: "validate", agentic: false },
+        { source: "auditor", target: "output", label: "approved", agentic: false },
         { source: "auditor", target: "generator", label: "retry", curved: true, curveOffset: -60, agentic: true },
-        { source: "auditor", target: "output", label: "approved", agentic: true },
+        
+        // Generator routing to specialized agents (agentic decisions)
         { source: "generator", target: "codeGen", label: "sql", agentic: true },
+        { source: "generator", target: "tools", label: "api", agentic: true },
+        
+        // Generator routing to Q&A pipeline (agentic decisions)
         { source: "generator", target: "docParser", label: "docs", agentic: true },
         { source: "generator", target: "questionProc", label: "classify", agentic: true },
-        { source: "generator", target: "tools", label: "api", agentic: true },
+        
+        // Return flows (automatic)
         { source: "codeGen", target: "generator", label: "results", agentic: false },
+        { source: "tools", target: "generator", label: "results", agentic: false },
+        
+        // Q&A pipeline flow (automatic)
         { source: "docParser", target: "qaAgent", label: "classified", agentic: false },
         { source: "questionProc", target: "qaAgent", label: "questions", agentic: false },
         { source: "qaAgent", target: "database", label: "answers", agentic: false },
-        { source: "database", target: "reports", label: "generate", agentic: false },
-        { source: "tools", target: "generator", label: "results", agentic: false }
+        { source: "database", target: "reports", label: "generate", agentic: false }
     ];
     
     // Draw links
