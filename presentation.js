@@ -1759,16 +1759,25 @@ function createDynamicSQLGenerator() {
     // Clear any existing content first
     d3.select("#sql-generator-dynamic").selectAll("*").remove();
     
+    // Ensure container is properly sized
+    const container = document.getElementById('sql-generator-dynamic');
+    if (!container) {
+        setTimeout(createDynamicSQLGenerator, 100);
+        return;
+    }
+    
     const svg = d3.select("#sql-generator-dynamic")
         .append("svg")
         .attr("width", "100%")
-        .attr("height", "650")
-        .attr("viewBox", "0 0 1600 650");
+        .attr("height", "550")
+        .attr("viewBox", "0 0 1600 550")
+        .style("max-height", "550px")
+        .style("overflow", "visible");
     
     // Define the components with larger sizes for better text fitting and wider layout
     const components = {
         userQuery: { 
-            x: 220, y: 120, 
+            x: 220, y: 100, 
             label: "User Query", 
             example: "\"Show me contracts\nby status\"", 
             color: "#667eea",
@@ -1777,7 +1786,7 @@ function createDynamicSQLGenerator() {
             icon: "💬"
         },
         mcpPrompt: { 
-            x: 220, y: 280, 
+            x: 220, y: 260, 
             label: "MCP Dynamic\nPrompt", 
             example: "Schema-aware prompt\ngeneration", 
             color: "#00ff88",
@@ -1786,7 +1795,7 @@ function createDynamicSQLGenerator() {
             icon: "📋"
         },
         dbSchema: { 
-            x: 220, y: 440, 
+            x: 220, y: 420, 
             label: "PostgreSQL Schema", 
             example: "contracts table:\nid, status, amount...", 
             color: "#764ba2",
@@ -1795,7 +1804,7 @@ function createDynamicSQLGenerator() {
             icon: "🗄️"
         },
         codeGenerator: { 
-            x: 750, y: 280, 
+            x: 750, y: 260, 
             label: "SQL Code Generator\nAgent", 
             example: "3B fine-tuned model\nwith vLLM optimization", 
             color: "#ff6b35",
@@ -1804,7 +1813,7 @@ function createDynamicSQLGenerator() {
             icon: "🤖"
         },
         sqlQuery: { 
-            x: 1180, y: 120, 
+            x: 1180, y: 100, 
             label: "Generated SQL", 
             example: "SELECT status,\nCOUNT(*) FROM contracts\nGROUP BY status", 
             color: "#667eea",
@@ -1813,7 +1822,7 @@ function createDynamicSQLGenerator() {
             icon: "💻"
         },
         execution: { 
-            x: 1180, y: 480, 
+            x: 1180, y: 420, 
             label: "Query Execution", 
             example: "PostgreSQL\nprocessing", 
             color: "#764ba2",
@@ -1822,7 +1831,7 @@ function createDynamicSQLGenerator() {
             icon: "⚡"
         },
         results: { 
-            x: 1450, y: 280, 
+            x: 1450, y: 260, 
             label: "Results", 
             example: "Active: 45\nComplete: 23\nPending: 12", 
             color: "#00ff88",
