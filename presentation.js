@@ -469,7 +469,7 @@ function createAgentArchitecture() {
         .append('svg')
         .attr('width', '100%')
         .attr('height', '100%')
-        .attr('viewBox', '0 0 1400 500');
+        .attr('viewBox', '0 0 1300 480');
     
     // Define arrow markers
     const defs = svg.append('defs');
@@ -487,23 +487,23 @@ function createAgentArchitecture() {
     
     // Node positions - adjusted layout to include Q&A Agent
     const nodes = {
-        // Main flow - horizontal line
-        user: { x: 100, y: 200, label: "User Input", color: "#667eea", icon: "👤" },
-        retrieval: { x: 300, y: 200, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍" },
-        generator: { x: 500, y: 200, label: "Generator\nAgent", color: "#667eea", icon: "🤖" },
-        auditor: { x: 700, y: 200, label: "Auditor/\nReflection", color: "#00ff88", icon: "✅" },
-        output: { x: 900, y: 200, label: "User Output", color: "#667eea", icon: "📤" },
+        // Main flow - horizontal line (more spaced out)
+        user: { x: 80, y: 150, label: "User Input", color: "#667eea", icon: "👤" },
+        retrieval: { x: 300, y: 150, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍" },
+        generator: { x: 520, y: 150, label: "Generator\nAgent", color: "#667eea", icon: "🤖" },
+        auditor: { x: 740, y: 150, label: "Auditor/\nReflection", color: "#00ff88", icon: "✅" },
+        output: { x: 960, y: 150, label: "User Output", color: "#667eea", icon: "📤" },
         
-        // Specialized agents - second row
-        codeGen: { x: 400, y: 350, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖" },
-        tools: { x: 600, y: 350, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
+        // Specialized agents - second row (more spread out)
+        codeGen: { x: 420, y: 280, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖" },
+        tools: { x: 620, y: 280, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
         
-        // Tools & Resources - third row (Q&A pipeline)
-        docParser: { x: 400, y: 450, label: "Document\nParser", color: "#ff6b35", icon: "📄" },
-        questionProc: { x: 600, y: 450, label: "Question\nProcessor", color: "#ff6b35", icon: "🔍" },
-        qaAgent: { x: 800, y: 450, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖" },
-        database: { x: 1000, y: 450, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾" },
-        reports: { x: 1200, y: 450, label: "Dynamic\nReports", color: "#ff6b35", icon: "📊" }
+        // Tools & Resources - third row (Q&A pipeline, more spaced)
+        docParser: { x: 320, y: 400, label: "Document\nParser", color: "#ff6b35", icon: "📄" },
+        questionProc: { x: 520, y: 400, label: "Question\nProcessor", color: "#ff6b35", icon: "🔍" },
+        qaAgent: { x: 720, y: 400, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖" },
+        database: { x: 920, y: 400, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾" },
+        reports: { x: 1120, y: 400, label: "Dynamic\nReports", color: "#ff6b35", icon: "📊" }
     };
     
     // Create links - corrected flow and agentic decisions
