@@ -25,7 +25,7 @@ Reveal.initialize({
         } else if (currentSlide.id === 'problem-statement') {
             createBottleneckDiagram();
         } else if (currentSlide.id === 'architecture') {
-            createAgentArchitecture();
+            setTimeout(() => createAgentArchitecture(), 100);
         } else if (currentSlide.id === 'parallel-processing') {
             setTimeout(createParallelChart, 100);
         }
@@ -36,6 +36,8 @@ Reveal.initialize({
 Reveal.on('slidechanged', event => {
     if (event.currentSlide.id === 'background-journey') {
         createJourneyTimeline();
+    } else if (event.currentSlide.id === 'architecture') {
+        setTimeout(() => createAgentArchitecture(), 100);
     }
 });
 
@@ -226,7 +228,7 @@ function initializeVisualization(slideId) {
             createBottleneckDiagram();
             break;
         case 'architecture':
-            createAgentArchitecture();
+            setTimeout(() => createAgentArchitecture(), 100);
             break;
         case 'parallel-processing':
             createParallelChart();
@@ -459,13 +461,15 @@ function createBottleneckDiagram() {
 // Multi-Agent Architecture Diagram
 function createAgentArchitecture() {
     const container = document.getElementById('agent-flow-diagram');
+    if (!container) return;
+    
     container.innerHTML = '';
     
     const svg = d3.select('#agent-flow-diagram')
         .append('svg')
         .attr('width', '100%')
         .attr('height', '100%')
-        .attr('viewBox', '0 0 1400 600');
+        .attr('viewBox', '0 0 1400 500');
     
     // Define arrow markers
     const defs = svg.append('defs');
@@ -1336,20 +1340,15 @@ function createSQLGeneratorFlow() {
     // Clear any existing diagram
     d3.select("#sql-generator-flow").selectAll("*").remove();
     
-    // Create container for SQL flow if it doesn't exist
-    const ragSection = d3.select("#rag-pipeline .rag-visualization");
-    if (ragSection.select("#sql-generator-flow").empty()) {
-        ragSection.append("div")
-            .attr("id", "sql-generator-flow")
-            .style("margin-top", "20px")
-            .style("text-align", "center");
-        
-        ragSection.select("#sql-generator-flow")
-            .append("h4")
-            .style("color", "#667eea")
-            .style("margin-bottom", "10px")
-            .text("SQL Code Generator Pipeline");
-    }
+    const container = d3.select("#sql-generator-flow");
+    if (container.empty()) return;
+    
+    // Add heading
+    container.append("h4")
+        .style("color", "#667eea")
+        .style("margin-bottom", "10px")
+        .style("text-align", "center")
+        .text("SQL Code Generator Pipeline");
     
     const svg = d3.select("#sql-generator-flow")
         .append("svg")
