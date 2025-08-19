@@ -234,8 +234,10 @@ function initializeVisualization(slideId) {
             createParallelChart();
             break;
         case 'rag-pipeline':
-            createRAGPipeline();
-            createSQLGeneratorFlow();
+            createDynamicSQLGenerator();
+            break;
+        case 'document-processing-pipeline':
+            createDocumentProcessingFlow();
             break;
         case 'document-processing':
             createDocumentPipeline();
@@ -469,10 +471,12 @@ function createAgentArchitecture() {
         .append('svg')
         .attr('width', '100%')
         .attr('height', '100%')
-        .attr('viewBox', '0 0 1300 480');
+        .attr('viewBox', '0 0 1600 700');
     
     // Define arrow markers
     const defs = svg.append('defs');
+    
+    // Regular arrowhead for programmatic workflows
     defs.append('marker')
         .attr('id', 'arrowhead')
         .attr('viewBox', '0 0 10 10')
@@ -485,55 +489,68 @@ function createAgentArchitecture() {
         .attr('d', 'M 0 0 L 10 5 L 0 10 z')
         .attr('fill', '#667eea');
     
-    // Node positions - adjusted layout to include Q&A Agent
+    // Circle marker for agentic decisions
+    defs.append('marker')
+        .attr('id', 'circlehead')
+        .attr('viewBox', '0 0 10 10')
+        .attr('refX', 5)
+        .attr('refY', 5)
+        .attr('markerWidth', 8)
+        .attr('markerHeight', 8)
+        .attr('orient', 'auto')
+        .append('circle')
+        .attr('cx', 5)
+        .attr('cy', 5)
+        .attr('r', 3)
+        .attr('fill', '#764ba2');
+    
+    // Node positions - much more spread out and organic layout
     const nodes = {
-        // Main flow - horizontal line (more spaced out)
-        user: { x: 80, y: 150, label: "User Input", color: "#667eea", icon: "👤" },
-        retrieval: { x: 300, y: 150, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍" },
-        generator: { x: 520, y: 150, label: "Generator\nAgent", color: "#667eea", icon: "🤖" },
-        auditor: { x: 740, y: 150, label: "Auditor/\nReflection", color: "#00ff88", icon: "✅" },
-        output: { x: 960, y: 150, label: "User Output", color: "#667eea", icon: "📤" },
+        // Main flow - organic positioning with more space
+        user: { x: 80, y: 80, label: "User Input", color: "#667eea", icon: "👤", size: 70 },
+        retrieval: { x: 300, y: 60, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍", size: 80 },
+        generator: { x: 750, y: 120, label: "Generator\nAgent", color: "#667eea", icon: "🤖", size: 100 },
+        auditor: { x: 1150, y: 80, label: "Auditor/\nReflection", color: "#00ff88", icon: "✅", size: 80 },
+        output: { x: 1380, y: 100, label: "User Output", color: "#667eea", icon: "📤", size: 70 },
         
-        // Specialized agents - second row (more spread out)
-        codeGen: { x: 420, y: 280, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖" },
-        tools: { x: 620, y: 280, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧" },
+        // Specialized agents - much more spread with organic positioning
+        codeGen: { x: 450, y: 320, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖", size: 90 },
+        tools: { x: 950, y: 280, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧", size: 85 },
         
-        // Tools & Resources - third row (Q&A pipeline, more spaced)
-        docParser: { x: 320, y: 400, label: "Document\nParser", color: "#ff6b35", icon: "📄" },
-        questionProc: { x: 520, y: 400, label: "Question\nProcessor", color: "#ff6b35", icon: "🔍" },
-        qaAgent: { x: 720, y: 400, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖" },
-        database: { x: 920, y: 400, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾" },
-        reports: { x: 1120, y: 400, label: "Dynamic\nReports", color: "#ff6b35", icon: "📊" }
+        // Document processing pipeline - separate from user input
+        docUpload: { x: 80, y: 400, label: "Document\nUpload", color: "#667eea", icon: "📁", size: 75 },
+        docParser: { x: 250, y: 480, label: "Document\nParser", color: "#ff6b35", icon: "📄", size: 80 },
+        questionProc: { x: 550, y: 520, label: "Question\nProcessor", color: "#ff6b35", icon: "🔍", size: 75 },
+        qaAgent: { x: 900, y: 480, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖", size: 90 },
+        database: { x: 1200, y: 520, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾", size: 80 },
+        reports: { x: 1420, y: 480, label: "Dynamic\nReports", color: "#ff6b35", icon: "📊", size: 85 }
     };
     
     // Create links - corrected flow and agentic decisions
     // agentic: true means the generator makes a decision to route (dashed line)
     // agentic: false means automatic workflow (solid line)
     const links = [
-        // Main flow
-        { source: "user", target: "retrieval", label: "auto", agentic: false },
+        // Main user query flow
+        { source: "user", target: "retrieval", label: "query", agentic: false },
         { source: "retrieval", target: "generator", label: "context", agentic: false },
         { source: "generator", target: "auditor", label: "validate", agentic: false },
         { source: "auditor", target: "output", label: "approved", agentic: false },
         { source: "auditor", target: "generator", label: "retry", curved: true, curveOffset: -60, agentic: true },
         
-        // Generator routing to specialized agents (agentic decisions)
+        // Generator routing to specialized agents (ONLY agentic decisions)
         { source: "generator", target: "codeGen", label: "sql", agentic: true },
         { source: "generator", target: "tools", label: "api", agentic: true },
         
-        // Generator routing to Q&A pipeline (agentic decisions)
-        { source: "generator", target: "docParser", label: "docs", agentic: true },
-        { source: "generator", target: "questionProc", label: "classify", agentic: true },
-        
-        // Return flows (automatic)
+        // Return flows from agents (automatic)
         { source: "codeGen", target: "generator", label: "results", agentic: false },
         { source: "tools", target: "generator", label: "results", agentic: false },
         
-        // Q&A pipeline flow (automatic)
-        { source: "docParser", target: "qaAgent", label: "classified", agentic: false },
+        // Document processing pipeline (separate from user queries)
+        { source: "docUpload", target: "docParser", label: "docs", agentic: false },
+        { source: "docParser", target: "questionProc", label: "classified", agentic: false },
         { source: "questionProc", target: "qaAgent", label: "questions", agentic: false },
         { source: "qaAgent", target: "database", label: "answers", agentic: false },
-        { source: "database", target: "reports", label: "generate", agentic: false }
+        { source: "database", target: "reports", label: "reports", agentic: false }
     ];
     
     // Draw links
@@ -543,21 +560,29 @@ function createAgentArchitecture() {
         
         let path;
         if (link.curved) {
-            // Curved path for retry loop
+            // More organic curved paths
             const midX = (source.x + target.x) / 2;
-            const offset = link.curveOffset || -50;
+            const offset = link.curveOffset || -80;
             const midY = Math.min(source.y, target.y) + offset;
             path = `M ${source.x} ${source.y} Q ${midX} ${midY} ${target.x} ${target.y}`;
         } else {
-            path = `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+            // Slightly curved "straight" lines for more organic feel
+            const midX = (source.x + target.x) / 2;
+            const curvature = (source.x < target.x && source.y !== target.y) ? 15 : 0;
+            const midY = (source.y + target.y) / 2 + curvature;
+            if (curvature > 0) {
+                path = `M ${source.x} ${source.y} Q ${midX} ${midY} ${target.x} ${target.y}`;
+            } else {
+                path = `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+            }
         }
         
         const pathElement = svg.append('path')
             .attr('d', path)
-            .attr('stroke', link.agentic ? '#ff6b35' : '#667eea')
+            .attr('stroke', link.agentic ? '#764ba2' : '#667eea')
             .attr('stroke-width', 2)
             .attr('fill', 'none')
-            .attr('marker-end', 'url(#arrowhead)')
+            .attr('marker-end', link.agentic ? 'url(#circlehead)' : 'url(#arrowhead)')
             .attr('opacity', 0);
         
         if (link.agentic) {
@@ -594,11 +619,18 @@ function createAgentArchitecture() {
             labelY -= 25;
         }
         
-        // Skip labels for return arrows to reduce clutter
+        // Skip labels for many arrows to reduce clutter
         const skipLabel = (
             (link.source === 'auditor' && link.target === 'generator') ||
             (link.source === 'tools' && link.target === 'generator') ||
-            (link.source === 'codeGen' && link.target === 'generator')
+            (link.source === 'codeGen' && link.target === 'generator') ||
+            (link.source === 'docUpload' && link.target === 'docParser') ||
+            (link.source === 'docParser' && link.target === 'questionProc') ||
+            (link.source === 'questionProc' && link.target === 'qaAgent') ||
+            (link.source === 'qaAgent' && link.target === 'database') ||
+            (link.source === 'database' && link.target === 'reports') ||
+            (link.source === 'user' && link.target === 'retrieval') ||
+            (link.source === 'retrieval' && link.target === 'generator')
         );
         
         if (!skipLabel) {
@@ -617,26 +649,28 @@ function createAgentArchitecture() {
         }
     });
     
-    // Draw nodes
-    Object.entries(nodes).forEach(([key, node], i) => {
+    // Draw nodes with dynamic sizing
+    Object.entries(nodes).forEach(([, node], i) => {
+        const nodeSize = node.size || 60;
         const g = svg.append('g')
-            .attr('transform', `translate(${node.x}, ${node.y})`);
+            .attr('transform', `translate(${node.x}, ${node.y})`)
+            .style('cursor', 'pointer');
         
-        // Node rectangle
-        g.append('rect')
-            .attr('x', -60)
-            .attr('y', -30)
-            .attr('width', 120)
-            .attr('height', 60)
-            .attr('rx', 10)
+        // Dynamic elliptical shape for more organic look
+        g.append('ellipse')
+            .attr('cx', 0)
+            .attr('cy', 0)
+            .attr('rx', nodeSize/2)
+            .attr('ry', nodeSize/3)
             .attr('fill', `${node.color}20`)
             .attr('stroke', node.color)
-            .attr('stroke-width', 2)
+            .attr('stroke-width', 3)
             .style('opacity', 0)
             .transition()
-            .duration(500)
-            .delay(i * 100)
-            .style('opacity', 1);
+            .duration(600)
+            .delay(i * 150)
+            .style('opacity', 1)
+            .style('filter', 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))');
         
         // Icon
         g.append('text')
@@ -668,6 +702,72 @@ function createAgentArchitecture() {
                 .style('opacity', 1);
         });
     });
+    
+    // Add legend for line types
+    const legend = svg.append('g')
+        .attr('transform', 'translate(50, 600)')
+        .style('opacity', 0);
+    
+    // Legend background
+    legend.append('rect')
+        .attr('x', -10)
+        .attr('y', -5)
+        .attr('width', 320)
+        .attr('height', 80)
+        .attr('rx', 10)
+        .attr('fill', 'rgba(0, 0, 0, 0.6)')
+        .attr('stroke', 'rgba(102, 126, 234, 0.3)')
+        .attr('stroke-width', 1);
+    
+    // Legend title
+    legend.append('text')
+        .attr('x', 5)
+        .attr('y', 15)
+        .attr('fill', '#fff')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text('Arrow Types:');
+    
+    // Solid line example
+    legend.append('line')
+        .attr('x1', 10)
+        .attr('y1', 35)
+        .attr('x2', 60)
+        .attr('y2', 35)
+        .attr('stroke', '#667eea')
+        .attr('stroke-width', 3)
+        .attr('marker-end', 'url(#arrowhead)');
+    
+    legend.append('text')
+        .attr('x', 70)
+        .attr('y', 39)
+        .attr('fill', '#e0e0e0')
+        .style('font-size', '12px')
+        .text('Programmatic workflows');
+    
+    // Dashed line example
+    legend.append('line')
+        .attr('x1', 10)
+        .attr('y1', 55)
+        .attr('x2', 60)
+        .attr('y2', 55)
+        .attr('stroke', '#764ba2')
+        .attr('stroke-width', 3)
+        .attr('stroke-dasharray', '8,4')
+        .attr('marker-end', 'url(#circlehead)');
+    
+    legend.append('text')
+        .attr('x', 70)
+        .attr('y', 59)
+        .attr('fill', '#e0e0e0')
+        .style('font-size', '12px')
+        .text('Agentic decisions');
+    
+    // Animate legend in after nodes are drawn
+    legend.transition()
+        .duration(800)
+        .delay(2000)
+        .style('opacity', 1);
 }
 
 // Parallel Processing Chart
@@ -754,7 +854,19 @@ function createParallelChart() {
 Reveal.on('slidechanged', event => {
     // Small delay to ensure slide is fully rendered
     setTimeout(() => {
-        initializeVisualization(event.currentSlide.id);
+        const slideId = event.currentSlide.id;
+        
+        // Special handling for slides with multiple visualizations
+        if (slideId === 'rag-pipeline') {
+            createDynamicSQLGenerator();
+        } else if (slideId === 'document-processing-pipeline') {
+            createDocumentProcessingFlow();
+        } else if (slideId === 'document-processing') {
+            createDocumentPipeline();
+            setTimeout(createClassificationHeatmap, 300);
+        } else {
+            initializeVisualization(slideId);
+        }
     }, 100);
 });
 
@@ -1470,10 +1582,10 @@ function createClassificationHeatmap() {
     const svg = d3.select("#classification-heatmap")
         .append("svg")
         .attr("width", "100%")
-        .attr("height", "200")
-        .attr("viewBox", "0 0 600 200");
+        .attr("height", "340")
+        .attr("viewBox", "0 0 800 340");
     
-    // Sample accuracy data for 15 document types
+    // Sample accuracy data for 24 document types (4 rows)
     const documentTypes = [
         { name: "System Requirements", accuracy: 0.99, docs: 245 },
         { name: "Technical Specs", accuracy: 0.98, docs: 189 },
@@ -1489,14 +1601,22 @@ function createClassificationHeatmap() {
         { name: "Status Updates", accuracy: 0.97, docs: 267 },
         { name: "Meeting Notes", accuracy: 0.95, docs: 123 },
         { name: "Policy Docs", accuracy: 1.00, docs: 178 },
-        { name: "Change Orders", accuracy: 0.98, docs: 198 }
+        { name: "Change Orders", accuracy: 0.98, docs: 198 },
+        { name: "Incident Reports", accuracy: 0.97, docs: 134 },
+        { name: "Quality Audits", accuracy: 0.99, docs: 156 },
+        { name: "Contract Docs", accuracy: 0.98, docs: 187 },
+        { name: "Purchase Orders", accuracy: 0.97, docs: 145 },
+        { name: "Risk Assessments", accuracy: 0.99, docs: 123 },
+        { name: "Work Orders", accuracy: 0.98, docs: 198 },
+        { name: "Inspection Reports", accuracy: 0.96, docs: 167 },
+        { name: "Training Records", accuracy: 0.99, docs: 234 },
+        { name: "Security Protocols", accuracy: 1.00, docs: 145 }
     ];
     
-    // Create grid layout
-    const cols = 5;
-    const rows = 3;
-    const cellWidth = 100;
-    const cellHeight = 50;
+    // Create grid layout - 6 columns for better distribution
+    const cols = 6;
+    const cellWidth = 120;
+    const cellHeight = 55;
     const startX = 50;
     const startY = 25;
     
@@ -1578,9 +1698,9 @@ function createClassificationHeatmap() {
         });
     });
     
-    // Add legend
+    // Add legend positioned further below the heatmap (after 4 rows)
     const legend = svg.append("g")
-        .attr("transform", "translate(520, 25)");
+        .attr("transform", "translate(250, 255)");
     
     legend.append("text")
         .attr("x", 0)
@@ -1588,7 +1708,8 @@ function createClassificationHeatmap() {
         .attr("fill", "#b0b0b0")
         .style("font-size", "12px")
         .style("font-weight", "bold")
-        .text("Accuracy");
+        .style("text-anchor", "middle")
+        .text("Accuracy Scale");
     
     // Color gradient legend
     const gradientId = "accuracy-gradient";
@@ -1609,25 +1730,370 @@ function createClassificationHeatmap() {
         .style("stop-color", "#00ff88");
     
     legend.append("rect")
-        .attr("x", 0)
+        .attr("x", -40)
         .attr("y", 15)
-        .attr("width", 50)
-        .attr("height", 10)
-        .attr("fill", `url(#${gradientId})`);
+        .attr("width", 80)
+        .attr("height", 8)
+        .attr("fill", `url(#${gradientId})`)
+        .attr("rx", 4);
     
     legend.append("text")
-        .attr("x", 0)
+        .attr("x", -40)
         .attr("y", 35)
         .attr("fill", "#b0b0b0")
         .style("font-size", "10px")
+        .style("text-anchor", "middle")
         .text("95%");
     
     legend.append("text")
-        .attr("x", 35)
+        .attr("x", 40)
         .attr("y", 35)
         .attr("fill", "#b0b0b0")
         .style("font-size", "10px")
+        .style("text-anchor", "middle")
         .text("100%");
+}
+
+// Dynamic SQL Code Generator Visualization
+function createDynamicSQLGenerator() {
+    // Clear any existing content first
+    d3.select("#sql-generator-dynamic").selectAll("*").remove();
+    
+    const svg = d3.select("#sql-generator-dynamic")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "650")
+        .attr("viewBox", "0 0 1600 650");
+    
+    // Define the components with larger sizes for better text fitting and wider layout
+    const components = {
+        userQuery: { 
+            x: 220, y: 120, 
+            label: "User Query", 
+            example: "\"Show me contracts\nby status\"", 
+            color: "#667eea",
+            size: 220,
+            shape: "blob",
+            icon: "💬"
+        },
+        mcpPrompt: { 
+            x: 220, y: 280, 
+            label: "MCP Dynamic\nPrompt", 
+            example: "Schema-aware prompt\ngeneration", 
+            color: "#00ff88",
+            size: 230,
+            shape: "organic",
+            icon: "📋"
+        },
+        dbSchema: { 
+            x: 220, y: 440, 
+            label: "PostgreSQL Schema", 
+            example: "contracts table:\nid, status, amount...", 
+            color: "#764ba2",
+            size: 230,
+            shape: "hexagon",
+            icon: "🗄️"
+        },
+        codeGenerator: { 
+            x: 750, y: 280, 
+            label: "SQL Code Generator\nAgent", 
+            example: "3B fine-tuned model\nwith vLLM optimization", 
+            color: "#ff6b35",
+            size: 200,
+            shape: "robot",
+            icon: "🤖"
+        },
+        sqlQuery: { 
+            x: 1180, y: 120, 
+            label: "Generated SQL", 
+            example: "SELECT status,\nCOUNT(*) FROM contracts\nGROUP BY status", 
+            color: "#667eea",
+            size: 240,
+            shape: "rounded",
+            icon: "💻"
+        },
+        execution: { 
+            x: 1180, y: 480, 
+            label: "Query Execution", 
+            example: "PostgreSQL\nprocessing", 
+            color: "#764ba2",
+            size: 210,
+            shape: "diamond",
+            icon: "⚡"
+        },
+        results: { 
+            x: 1450, y: 280, 
+            label: "Results", 
+            example: "Active: 45\nComplete: 23\nPending: 12", 
+            color: "#00ff88",
+            size: 220,
+            shape: "blob",
+            icon: "📊"
+        }
+    };
+    
+    // Define connections showing simultaneous input
+    const connections = [
+        { from: "userQuery", to: "codeGenerator", label: "natural language", style: "curved" },
+        { from: "mcpPrompt", to: "codeGenerator", label: "instruction", style: "straight" },
+        { from: "dbSchema", to: "codeGenerator", label: "schema context", style: "curved" },
+        { from: "codeGenerator", to: "sqlQuery", label: "generates", style: "straight" },
+        { from: "sqlQuery", to: "execution", label: "executes", style: "straight" },
+        { from: "execution", to: "results", label: "returns", style: "straight" }
+    ];
+    
+    // Draw connections first
+    connections.forEach((conn, i) => {
+        const from = components[conn.from];
+        const to = components[conn.to];
+        
+        let path;
+        if (conn.style === "curved") {
+            const midX = (from.x + to.x) / 2;
+            const midY = (from.y + to.y) / 2 + (from.y < to.y ? -50 : 50);
+            path = `M ${from.x + 40} ${from.y} Q ${midX} ${midY} ${to.x - 60} ${to.y}`;
+        } else {
+            path = `M ${from.x + 40} ${from.y} L ${to.x - 60} ${to.y}`;
+        }
+        
+        svg.append("path")
+            .attr("d", path)
+            .attr("stroke", "#667eea")
+            .attr("stroke-width", 3)
+            .attr("fill", "none")
+            .attr("marker-end", "url(#sql-arrow)")
+            .style("opacity", 0)
+            .transition()
+            .duration(800)
+            .delay(i * 400)
+            .style("opacity", 0.4);
+        
+        // Add label
+        const midX = (from.x + to.x) / 2;
+        const midY = (from.y + to.y) / 2;
+        
+        svg.append("text")
+            .attr("x", midX)
+            .attr("y", midY - 10)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#b0b0b0")
+            .style("font-size", "10px")
+            .style("opacity", 0)
+            .text(conn.label)
+            .transition()
+            .duration(400)
+            .delay(i * 400 + 500)
+            .style("opacity", 0.7);
+    });
+    
+    // Arrow marker
+    svg.append("defs")
+        .append("marker")
+        .attr("id", "sql-arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 8)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#667eea");
+    
+    // Draw components with dynamic shapes
+    Object.entries(components).forEach(([, comp], i) => {
+        const g = svg.append("g")
+            .attr("transform", `translate(${comp.x}, ${comp.y})`)
+            .style("opacity", 0);
+        
+        // Draw different shapes based on component type
+        if (comp.shape === "robot") {
+            // Special robot shape for the code generator
+            g.append("rect")
+                .attr("x", -comp.size/2)
+                .attr("y", -comp.size/2.5)
+                .attr("width", comp.size)
+                .attr("height", comp.size * 0.8)
+                .attr("rx", comp.size/4)
+                .attr("fill", `${comp.color}25`)
+                .attr("stroke", comp.color)
+                .attr("stroke-width", 4)
+                .style("filter", "drop-shadow(0 6px 12px rgba(255,107,53,0.4))");
+        } else if (comp.shape === "blob") {
+            // Organic blob shape
+            const path = `M ${-comp.size/2} 0 
+                         Q ${-comp.size/3} ${-comp.size/2.5} 0 ${-comp.size/3}
+                         Q ${comp.size/3} ${-comp.size/2.5} ${comp.size/2} 0
+                         Q ${comp.size/3} ${comp.size/2.5} 0 ${comp.size/3}
+                         Q ${-comp.size/3} ${comp.size/2.5} ${-comp.size/2} 0 Z`;
+            g.append("path")
+                .attr("d", path)
+                .attr("fill", `${comp.color}20`)
+                .attr("stroke", comp.color)
+                .attr("stroke-width", 3);
+        } else if (comp.shape === "hexagon") {
+            // Hexagon shape
+            const points = [];
+            for (let j = 0; j < 6; j++) {
+                const angle = (j * 60) * Math.PI / 180;
+                const x = (comp.size/2.5) * Math.cos(angle);
+                const y = (comp.size/2.5) * Math.sin(angle);
+                points.push(`${x},${y}`);
+            }
+            g.append("polygon")
+                .attr("points", points.join(" "))
+                .attr("fill", `${comp.color}20`)
+                .attr("stroke", comp.color)
+                .attr("stroke-width", 3);
+        } else if (comp.shape === "diamond") {
+            // Diamond shape
+            const path = `M 0 ${-comp.size/2.5} L ${comp.size/2.5} 0 L 0 ${comp.size/2.5} L ${-comp.size/2.5} 0 Z`;
+            g.append("path")
+                .attr("d", path)
+                .attr("fill", `${comp.color}20`)
+                .attr("stroke", comp.color)
+                .attr("stroke-width", 3);
+        } else {
+            // Default ellipse for other shapes
+            g.append("ellipse")
+                .attr("cx", 0)
+                .attr("cy", 0)
+                .attr("rx", comp.size/2.2)
+                .attr("ry", comp.size/3.2)
+                .attr("fill", `${comp.color}20`)
+                .attr("stroke", comp.color)
+                .attr("stroke-width", 3);
+        }
+        
+        // Icon - moved higher up
+        g.append("text")
+            .attr("x", 0)
+            .attr("y", comp.shape === "robot" ? -25 : -20)
+            .attr("text-anchor", "middle")
+            .style("font-size", comp.shape === "robot" ? "32px" : "24px")
+            .style("opacity", 0)
+            .text(comp.icon)
+            .transition()
+            .duration(500)
+            .delay(i * 200 + 300)
+            .style("opacity", 1);
+        
+        // Title with larger font - moved higher up
+        g.append("text")
+            .attr("x", 0)
+            .attr("y", comp.shape === "robot" ? 5 : 0)
+            .attr("text-anchor", "middle")
+            .attr("fill", comp.color)
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .text(comp.label.split('\n')[0]);
+        
+        if (comp.label.includes('\n')) {
+            g.append("text")
+                .attr("x", 0)
+                .attr("y", comp.shape === "robot" ? 25 : 20)
+                .attr("text-anchor", "middle")
+                .attr("fill", comp.color)
+                .style("font-size", "16px")
+                .style("font-weight", "bold")
+                .text(comp.label.split('\n')[1]);
+        }
+        
+        // Example text with larger font and better spacing - moved higher up
+        const exampleLines = comp.example.split('\n');
+        const startY = comp.shape === "robot" ? 50 : (comp.label.includes('\n') ? 40 : 30);
+        exampleLines.forEach((line, j) => {
+            g.append("text")
+                .attr("x", 0)
+                .attr("y", startY + j * 16)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#b0b0b0")
+                .style("font-size", "13px")
+                .text(line);
+        });
+        
+        // Animate in
+        g.transition()
+            .duration(600)
+            .delay(i * 200)
+            .style("opacity", 1);
+    });
+}
+
+// Document Processing Flow
+function createDocumentProcessingFlow() {
+    const svg = d3.select("#doc-processing-flow")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "400")
+        .attr("viewBox", "0 0 600 400");
+    
+    // Simple flow: Documents -> Dolphin AI -> Text/Image Extract -> Embeddings -> pgvector -> Hybrid Search
+    const steps = [
+        { x: 100, y: 100, label: "Documents", color: "#667eea" },
+        { x: 100, y: 200, label: "Dolphin AI", color: "#00ff88" },
+        { x: 100, y: 300, label: "Text/Image\nExtract", color: "#764ba2" },
+        { x: 300, y: 200, label: "Embeddings", color: "#ff6b35" },
+        { x: 500, y: 200, label: "pgvector DB", color: "#667eea" },
+        { x: 500, y: 300, label: "Hybrid Search", color: "#00ff88" }
+    ];
+    
+    // Draw connections
+    const connections = [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5]
+    ];
+    
+    connections.forEach(([from, to], i) => {
+        const start = steps[from];
+        const end = steps[to];
+        
+        svg.append("path")
+            .attr("d", `M ${start.x + 25} ${start.y} L ${end.x - 25} ${end.y}`)
+            .attr("stroke", "#764ba2")
+            .attr("stroke-width", 2)
+            .attr("fill", "none")
+            .style("opacity", 0)
+            .transition()
+            .duration(500)
+            .delay(i * 300)
+            .style("opacity", 0.7);
+    });
+    
+    // Draw steps
+    steps.forEach((step, i) => {
+        const g = svg.append("g")
+            .attr("transform", `translate(${step.x}, ${step.y})`)
+            .style("opacity", 0);
+        
+        g.append("circle")
+            .attr("r", 25)
+            .attr("fill", `${step.color}30`)
+            .attr("stroke", step.color)
+            .attr("stroke-width", 2);
+        
+        g.append("text")
+            .attr("text-anchor", "middle")
+            .attr("y", 5)
+            .attr("fill", step.color)
+            .style("font-size", "10px")
+            .style("font-weight", "bold")
+            .text(step.label.split('\n')[0]);
+        
+        if (step.label.includes('\n')) {
+            g.append("text")
+                .attr("text-anchor", "middle")
+                .attr("y", 15)
+                .attr("fill", step.color)
+                .style("font-size", "10px")
+                .style("font-weight", "bold")
+                .text(step.label.split('\n')[1]);
+        }
+        
+        g.transition()
+            .duration(400)
+            .delay(i * 200)
+            .style("opacity", 1);
+    });
 }
 
 // Code tab switcher
@@ -1646,5 +2112,9 @@ window.showCodeTab = function(tab) {
     document.getElementById(tab + '-code').style.display = 'block';
     
     // Add active class to clicked tab
-    event.target.classList.add('active');
+    // Add active class to clicked tab
+    const clickedElement = arguments[0] ? arguments[0].target : null;
+    if (clickedElement) {
+        clickedElement.classList.add('active');
+    }
 };
