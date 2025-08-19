@@ -234,7 +234,7 @@ function initializeVisualization(slideId) {
             createParallelChart();
             break;
         case 'rag-pipeline':
-            createDynamicSQLGenerator();
+            setTimeout(() => createDynamicSQLGenerator(), 300);
             break;
         case 'document-processing-pipeline':
             createDocumentProcessingFlow();
@@ -858,7 +858,7 @@ Reveal.on('slidechanged', event => {
         
         // Special handling for slides with multiple visualizations
         if (slideId === 'rag-pipeline') {
-            createDynamicSQLGenerator();
+            setTimeout(() => createDynamicSQLGenerator(), 300);
         } else if (slideId === 'document-processing-pipeline') {
             createDocumentProcessingFlow();
         } else if (slideId === 'document-processing') {
@@ -1759,25 +1759,17 @@ function createDynamicSQLGenerator() {
     // Clear any existing content first
     d3.select("#sql-generator-dynamic").selectAll("*").remove();
     
-    // Ensure container is properly sized
-    const container = document.getElementById('sql-generator-dynamic');
-    if (!container) {
-        setTimeout(createDynamicSQLGenerator, 100);
-        return;
-    }
-    
     const svg = d3.select("#sql-generator-dynamic")
         .append("svg")
         .attr("width", "100%")
-        .attr("height", "550")
-        .attr("viewBox", "0 0 1600 550")
-        .style("max-height", "550px")
-        .style("overflow", "visible");
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 1600 600")
+        .attr("preserveAspectRatio", "xMidYMid meet");
     
     // Define the components with larger sizes for better text fitting and wider layout
     const components = {
         userQuery: { 
-            x: 220, y: 100, 
+            x: 220, y: 150, 
             label: "User Query", 
             example: "\"Show me contracts\nby status\"", 
             color: "#667eea",
@@ -1786,7 +1778,7 @@ function createDynamicSQLGenerator() {
             icon: "💬"
         },
         mcpPrompt: { 
-            x: 220, y: 260, 
+            x: 220, y: 300, 
             label: "MCP Dynamic\nPrompt", 
             example: "Schema-aware prompt\ngeneration", 
             color: "#00ff88",
@@ -1795,7 +1787,7 @@ function createDynamicSQLGenerator() {
             icon: "📋"
         },
         dbSchema: { 
-            x: 220, y: 420, 
+            x: 220, y: 450, 
             label: "PostgreSQL Schema", 
             example: "contracts table:\nid, status, amount...", 
             color: "#764ba2",
@@ -1804,7 +1796,7 @@ function createDynamicSQLGenerator() {
             icon: "🗄️"
         },
         codeGenerator: { 
-            x: 750, y: 260, 
+            x: 750, y: 300, 
             label: "SQL Code Generator\nAgent", 
             example: "3B fine-tuned model\nwith vLLM optimization", 
             color: "#ff6b35",
@@ -1813,7 +1805,7 @@ function createDynamicSQLGenerator() {
             icon: "🤖"
         },
         sqlQuery: { 
-            x: 1180, y: 100, 
+            x: 1180, y: 150, 
             label: "Generated SQL", 
             example: "SELECT status,\nCOUNT(*) FROM contracts\nGROUP BY status", 
             color: "#667eea",
@@ -1822,7 +1814,7 @@ function createDynamicSQLGenerator() {
             icon: "💻"
         },
         execution: { 
-            x: 1180, y: 420, 
+            x: 1180, y: 450, 
             label: "Query Execution", 
             example: "PostgreSQL\nprocessing", 
             color: "#764ba2",
@@ -1831,7 +1823,7 @@ function createDynamicSQLGenerator() {
             icon: "⚡"
         },
         results: { 
-            x: 1450, y: 260, 
+            x: 1450, y: 300, 
             label: "Results", 
             example: "Active: 45\nComplete: 23\nPending: 12", 
             color: "#00ff88",
