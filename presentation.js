@@ -856,6 +856,16 @@ Reveal.on('slidechanged', event => {
     setTimeout(() => {
         const slideId = event.currentSlide.id;
         
+        // Show/hide report overlay based on current slide
+        const reportOverlay = document.getElementById('report-overlay');
+        if (reportOverlay) {
+            if (slideId === 'qa-pipeline') {
+                reportOverlay.style.display = 'block';
+            } else {
+                reportOverlay.style.display = 'none';
+            }
+        }
+        
         // Special handling for slides with multiple visualizations
         if (slideId === 'rag-pipeline') {
             setTimeout(() => createDynamicSQLGenerator(), 300);
