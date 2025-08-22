@@ -414,7 +414,7 @@ function createBottleneckDiagram() {
         { label: "Multiple File Types", icon: "📊", y: 100 },
         { label: "Manual Tracking", icon: "👀", y: 200 },
         { label: "Manual Data Entry", icon: "⌨️", y: 300 },
-        { label: "100+ Hours/Event", icon: "⏰", y: 400 }
+        { label: "Poor Coverage", icon: "⚠️", y: 400 }
     ];
     
     processingSteps.forEach((step, i) => {
