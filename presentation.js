@@ -224,9 +224,6 @@ function initializeVisualization(slideId) {
         case 'background-journey':
             createJourneyTimeline();
             break;
-        case 'why-ai-spacex-now':
-            // No visualization needed - purely CSS animated slide
-            break;
         case 'problem-statement':
             createBottleneckDiagram();
             break;
