@@ -2122,144 +2122,158 @@ function createLiaisonQueryFlow() {
         .append("svg")
         .attr("width", "100%")
         .attr("height", "100%")
-        .attr("viewBox", "0 0 1920 1080")
+        .attr("viewBox", "0 0 2100 900")
         .attr("preserveAspectRatio", "xMidYMid meet");
     
-    // Define the complete workflow - BETTER HORIZONTAL SPACING
+    // Define the complete workflow - EXPANDED SNAKE PATTERN WITH LARGER COMPONENTS
     const steps = [
+        // ROW 1: Initial Query Processing (LEFT → RIGHT)
         {
             id: "liaison-query",
-            x: 200, y: 200,
+            x: 300, y: 180,
             title: "1. Liaison Query",
             subtitle: "User Input",
             content: "\"Give me MFIX 2025 participants\nin Field Site 1 with UAS tech\nand soldier counts\"",
             color: "#667eea",
             icon: "👤",
             type: "input",
-            size: 280
+            size: 240
         },
         {
             id: "generator-analysis",
-            x: 580, y: 200,
+            x: 780, y: 180,
             title: "2. Generator Agent",
             subtitle: "Query Analysis",
             content: "THINKING: \"I need info from\nparticipant-experiment view\nfor location & participants\"",
             color: "#00ff88",
             icon: "🤖",
             type: "thinking",
-            size: 280
+            size: 240
         },
         {
             id: "code-gen-1",
-            x: 960, y: 200,
+            x: 1260, y: 180,
             title: "3. Code Generator",
             subtitle: "First SQL Query",
             content: "SELECT * FROM\nparticipant_experiment\nWHERE event='MFIX 2025'\nAND field_site='Site 1'",
             color: "#ff6b35",
             icon: "💻",
             type: "code",
-            size: 280
+            size: 240
         },
         {
             id: "db-result-1",
-            x: 1340, y: 200,
+            x: 1740, y: 180,
             title: "4. Database Result",
             subtitle: "Partial Data",
             content: "Returns: 12 participants\nwith IDs and basic info\n(no UAS/soldier data yet)",
             color: "#764ba2",
             icon: "📊",
             type: "data",
-            size: 280
+            size: 240
         },
+        
+        // ROW 2: Secondary Query Processing (RIGHT → LEFT for natural flow)
         {
             id: "generator-thinking",
-            x: 1720, y: 200,
+            x: 1740, y: 460,
             title: "5. Generator Observes",
             subtitle: "Next Decision",
             content: "THINKING: \"Need UAS tech\nand soldier data from\nparticipant_requirements\"",
             color: "#00ff88",
             icon: "🧠",
             type: "thinking",
-            size: 280
+            size: 240
         },
         {
             id: "generator-query",
-            x: 1720, y: 380,
+            x: 1260, y: 460,
             title: "6. Generator Query",
             subtitle: "Self-Generated Query",
             content: "Generator creates:\n\"Get tech type and soldier count\nfor these 12 participant IDs\"",
             color: "#00ff88",
             icon: "📝",
             type: "thinking",
-            size: 280
+            size: 240
         },
         {
             id: "code-gen-2",
-            x: 1340, y: 560,
+            x: 780, y: 460,
             title: "7. Code Generator",
             subtitle: "Second SQL Query",
             content: "SELECT technology_type,\nsoldier_count FROM\nparticipant_requirements\nWHERE participant_id IN (...)",
             color: "#ff6b35",
             icon: "💻",
             type: "code",
-            size: 280
+            size: 240
         },
         {
             id: "db-result-2",
-            x: 960, y: 560,
+            x: 300, y: 460,
             title: "8. Database Result",
             subtitle: "UAS & Soldier Data",
             content: "Returns: Tech types & counts\n8 with UAS, 4 other tech\nSoldier counts: 15-45 each",
             color: "#764ba2",
             icon: "📊",
             type: "data",
-            size: 280
+            size: 240
         },
+
+        // ROW 3: Final Processing & Output (LEFT → RIGHT)
         {
             id: "generator-final",
-            x: 580, y: 560,
+            x: 560, y: 740,
             title: "9. Generator Combines",
             subtitle: "Data Processing",
             content: "THINKING: \"I have all data.\nLet me write Python to join\nand filter UAS participants\"",
             color: "#00ff88",
             icon: "🤖",
             type: "thinking",
-            size: 280
+            size: 240
         },
         {
             id: "python-join",
-            x: 200, y: 560,
+            x: 1020, y: 740,
             title: "10. Python Processing",
             subtitle: "Data Joining",
             content: "result = merge_data(part_data,\nreq_data, on='participant_id')\nuas_filter = tech=='UAS'",
             color: "#667eea",
             icon: "🐍",
             type: "code",
-            size: 280
+            size: 240
         },
         {
             id: "final-report",
-            x: 200, y: 740,
+            x: 1480, y: 740,
             title: "11. Generated Report",
             subtitle: "JSON to Frontend",
             content: "8 UAS Participants:\nAlpha Corp (32 soldiers)\nBravo Systems (28 soldiers)\n...formatted table",
             color: "#00ff88",
             icon: "📋",
             type: "output",
-            size: 280
+            size: 240
         }
     ];
     
-    // Define connections with data flow labels - INCLUDING MISSING GENERATOR QUERY
+    // Define connections with data flow labels - SNAKE PATTERN FLOW
     const connections = [
+        // Row 1: LEFT → RIGHT horizontal flow
         { from: "liaison-query", to: "generator-analysis", label: "natural language", dataFlow: "User query string" },
         { from: "generator-analysis", to: "code-gen-1", label: "SQL request", dataFlow: "Query + Schema context" },
         { from: "code-gen-1", to: "db-result-1", label: "execute", dataFlow: "SQL query execution" },
+        
+        // Vertical connection: Row 1 → Row 2 (rightmost to rightmost)
         { from: "db-result-1", to: "generator-thinking", label: "partial data", dataFlow: "12 participant records" },
+        
+        // Row 2: RIGHT → LEFT horizontal flow (snake pattern)
         { from: "generator-thinking", to: "generator-query", label: "reasoning", dataFlow: "Analysis of missing data" },
         { from: "generator-query", to: "code-gen-2", label: "new query", dataFlow: "Generated query + participant IDs" },
         { from: "code-gen-2", to: "db-result-2", label: "execute", dataFlow: "SQL with WHERE IN clause" },
+        
+        // Vertical connection: Row 2 → Row 3 (leftmost to center)
         { from: "db-result-2", to: "generator-final", label: "tech data", dataFlow: "Technology & soldier data" },
+        
+        // Row 3: LEFT → RIGHT horizontal flow
         { from: "generator-final", to: "python-join", label: "join request", dataFlow: "Python merge instruction" },
         { from: "python-join", to: "final-report", label: "filtered data", dataFlow: "8 UAS participants + counts" }
     ];
@@ -2329,17 +2343,48 @@ function createLiaisonQueryFlow() {
         
         if (!fromStep || !toStep) return;
         
-        // Calculate path - smart routing around obstacles with larger spacing
+        // Calculate path - smart routing with proper direction handling
         let path;
         const stepRadius = (fromStep.size || 140) / 2;
+        
+        // Determine if this is a right-to-left flow (Row 2 snake pattern)
+        const isRightToLeft = fromStep.x > toStep.x && Math.abs(fromStep.y - toStep.y) < 50;
+        
+        // Calculate start and end points based on flow direction
+        let startX, endX;
+        if (isRightToLeft) {
+            // Right to left: start from left edge of source, end at right edge of target
+            startX = fromStep.x - stepRadius;
+            endX = toStep.x + stepRadius;
+        } else if (Math.abs(fromStep.y - toStep.y) > 50) {
+            // Vertical connections: special handling
+            if (conn.from === "db-result-1" && conn.to === "generator-thinking") {
+                // #4 to #5: both elements are on right side, connect right edge to right edge
+                startX = fromStep.x + stepRadius;
+                endX = toStep.x + stepRadius;
+            } else if (conn.from === "db-result-2" && conn.to === "generator-final") {
+                // #8 to #9: left side to center, connect left edge to left edge
+                startX = fromStep.x - stepRadius;
+                endX = toStep.x - stepRadius;
+            } else {
+                // Default vertical: right edge to left edge
+                startX = fromStep.x + stepRadius;
+                endX = toStep.x - stepRadius;
+            }
+        } else {
+            // Left to right horizontal: start from right edge of source, end at left edge of target
+            startX = fromStep.x + stepRadius;
+            endX = toStep.x - stepRadius;
+        }
+        
         if (Math.abs(fromStep.y - toStep.y) > 50) {
             // Curved path for vertical connections
             const midX = (fromStep.x + toStep.x) / 2;
             const midY = (fromStep.y + toStep.y) / 2;
-            path = `M ${fromStep.x + stepRadius} ${fromStep.y} Q ${midX} ${midY} ${toStep.x - stepRadius} ${toStep.y}`;
+            path = `M ${startX} ${fromStep.y} Q ${midX} ${midY} ${endX} ${toStep.y}`;
         } else {
             // Straight path for horizontal connections
-            path = `M ${fromStep.x + stepRadius} ${fromStep.y} L ${toStep.x - stepRadius} ${toStep.y}`;
+            path = `M ${startX} ${fromStep.y} L ${endX} ${toStep.y}`;
         }
         
         const pathElement = svg.append("path")
@@ -2364,10 +2409,10 @@ function createLiaisonQueryFlow() {
         
         svg.append("text")
             .attr("x", midX)
-            .attr("y", midY - 25)
+            .attr("y", midY - 15)
             .attr("text-anchor", "middle")
             .attr("fill", "#b0b0b0")
-            .style("font-size", "20px")
+            .style("font-size", "14px")
             .style("font-weight", "bold")
             .style("opacity", 0)
             .text(conn.dataFlow)
@@ -2433,28 +2478,28 @@ function createLiaisonQueryFlow() {
         // Icon - LARGE FOR WELL-SPACED BOXES
         g.append("text")
             .attr("x", 0)
-            .attr("y", -70)
+            .attr("y", -60)
             .attr("text-anchor", "middle")
-            .style("font-size", "64px")
+            .style("font-size", "40px")
             .text(step.icon);
         
         // Title - LARGE
         g.append("text")
             .attr("x", 0)
-            .attr("y", -35)
+            .attr("y", -20)
             .attr("text-anchor", "middle")
             .attr("fill", step.color)
-            .style("font-size", "28px")
+            .style("font-size", "18px")
             .style("font-weight", "bold")
             .text(step.title);
         
         // Subtitle - READABLE
         g.append("text")
             .attr("x", 0)
-            .attr("y", -10)
+            .attr("y", 0)
             .attr("text-anchor", "middle")
             .attr("fill", "#b0b0b0")
-            .style("font-size", "20px")
+            .style("font-size", "14px")
             .style("font-style", "italic")
             .text(step.subtitle);
         
@@ -2463,10 +2508,10 @@ function createLiaisonQueryFlow() {
         lines.forEach((line, j) => {
             g.append("text")
                 .attr("x", 0)
-                .attr("y", 20 + j * 24)
+                .attr("y", 18 + j * 16)
                 .attr("text-anchor", "middle")
                 .attr("fill", step.type === "thinking" ? "#00ff88" : "#e0e0e0")
-                .style("font-size", "19px")
+                .style("font-size", "14px")
                 .style("font-family", step.type === "code" ? "monospace" : "inherit")
                 .style("font-weight", step.type === "thinking" ? "bold" : "normal")
                 .text(line);
@@ -2479,57 +2524,6 @@ function createLiaisonQueryFlow() {
             .style("opacity", 1);
     });
     
-    // Add legend - POSITIONED BELOW EXPANDED DIAGRAM
-    const legend = svg.append("g")
-        .attr("transform", "translate(150, 950)")
-        .style("opacity", 0);
-    
-    legend.append("rect")
-        .attr("x", -40)
-        .attr("y", -20)
-        .attr("width", 1620)
-        .attr("height", 80)
-        .attr("rx", 15)
-        .attr("fill", "rgba(0, 0, 0, 0.9)")
-        .attr("stroke", "rgba(102, 126, 234, 0.6)")
-        .attr("stroke-width", 3);
-    
-    legend.append("text")
-        .attr("x", 30)
-        .attr("y", 0)
-        .attr("fill", "#fff")
-        .style("font-size", "20px")
-        .style("font-weight", "bold")
-        .text("Multi-Agent Flow Types:");
-    
-    const legendItems = [
-        { x: 60, text: "💬 User Input/Output", color: "#667eea" },
-        { x: 320, text: "🤖 Agent Thinking (dashed)", color: "#00ff88" },
-        { x: 620, text: "💻 Code Generation", color: "#ff6b35" },
-        { x: 850, text: "📊 Data Results", color: "#764ba2" }
-    ];
-    
-    legendItems.forEach(item => {
-        legend.append("text")
-            .attr("x", item.x)
-            .attr("y", 25)
-            .attr("fill", item.color)
-            .style("font-size", "16px")
-            .style("font-weight", "bold")
-            .text(item.text);
-    });
-    
-    legend.append("text")
-        .attr("x", 30)
-        .attr("y", 45)
-        .attr("fill", "#b0b0b0")
-        .style("font-size", "14px")
-        .text("Shows complete reasoning trail from user query to final report with full audit capability");
-    
-    legend.transition()
-        .duration(800)
-        .delay(5000)
-        .style("opacity", 1);
 }
 
 window.showCodeTab = function(tab) {
