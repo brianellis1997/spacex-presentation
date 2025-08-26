@@ -139,7 +139,7 @@
                     <div class="challenge-item" style="background: rgba(255, 107, 53, 0.05); border: 1px solid #ff6b35; border-radius: 10px; padding: 20px;">
                         <h3 style="color: #ff6b35; margin-bottom: 10px;">3. Retrieval Accuracy</h3>
                         <p style="font-size: 0.8em; margin-bottom: 8px;"><strong>Problem:</strong> Semantic vs keyword mismatch</p>
-                        <p style="font-size: 0.8em; color: #00ff88;"><strong>Solution:</strong> Hybrid Search (15% gain)</p>
+                        <p style="font-size: 0.8em; color: #00ff88;"><strong>Solution:</strong> Re-ranker + Hybrid Search (20% recall gain)</p>
                     </div>
                     <div class="challenge-item" style="background: rgba(0, 255, 136, 0.05); border: 1px solid #00ff88; border-radius: 10px; padding: 20px;">
                         <h3 style="color: #00ff88; margin-bottom: 10px;">4. Manual Processing</h3>
@@ -208,7 +208,7 @@ GROUP BY rank;</code></pre>
                 <h2 style="margin-bottom: 20px; font-size: 1.4em;">Challenge 2 Solution: Multimodal Processing</h2>
                 <div class="solution-statement" style="margin-bottom: 20px;">
                     <h3>From Gibberish Text to Full Understanding</h3>
-                    <p>I recognized military documents need visual understanding, so I built multimodal processing from scratch</p>
+                    <p>I recognized military documents need visual understanding, so I built multimodal processing enabling complete information extraction from images, tables, and diagrams</p>
                 </div>
                 
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
@@ -250,7 +250,7 @@ Operational Environments:
 • Permissive (safe)
 • Contested (interference likely)
 • Anti-access (heavily defended)</code></pre>
-                            <p style="color: #00ff88; font-size: 0.7em; margin-top: 10px;">Result: Complete understanding with 92% accuracy</p>
+                            <p style="color: #00ff88; font-size: 0.7em; margin-top: 10px;">Result: Significant increase in information extraction from military documents</p>
                         </div>
                     </div>
                     
@@ -276,25 +276,25 @@ Operational Environments:
                     <!-- Results and Examples -->
                     <div style="flex: 1;">
                         <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(0, 255, 136, 0.05) 100%); border: 1px solid #667eea; border-radius: 10px; padding: 20px;">
-                            <h4 style="color: #667eea; margin-bottom: 15px;">Search Improvements</h4>
+                            <h4 style="color: #667eea; margin-bottom: 15px;">Retrieval Architecture & Results</h4>
                             
-                            <div style="margin-bottom: 20px;">
-                                <p style="color: #ff6b35; font-size: 0.8em; margin-bottom: 10px;"><strong>Before (Semantic Only):</strong></p>
-                                <p style="color: #e0e0e0; font-size: 0.75em; margin-left: 20px;">• Search "UAV" → Misses "unmanned aerial vehicle"</p>
-                                <p style="color: #e0e0e0; font-size: 0.75em; margin-left: 20px;">• Search "F-35" → Gets unrelated fighter content</p>
+                            <div style="margin-bottom: 15px;">
+                                <p style="color: #ff6b35; font-size: 0.8em; margin-bottom: 8px;"><strong>Stage 1: Re-ranker with Cross-Encoder</strong></p>
+                                <p style="color: #e0e0e0; font-size: 0.7em; margin-left: 15px;">• Added cross-encoder model for better relevance scoring</p>
+                                <p style="color: #00ff88; font-size: 0.75em; margin-left: 15px; font-weight: bold;">✓ 15% recall improvement over baseline embedding model</p>
                             </div>
                             
-                            <div style="margin-bottom: 20px;">
-                                <p style="color: #00ff88; font-size: 0.8em; margin-bottom: 10px;"><strong>After (Hybrid):</strong></p>
-                                <p style="color: #e0e0e0; font-size: 0.75em; margin-left: 20px;">• Semantic embeddings for concepts</p>
-                                <p style="color: #e0e0e0; font-size: 0.75em; margin-left: 20px;">• Keywords for exact matches</p>
-                                <p style="color: #e0e0e0; font-size: 0.75em; margin-left: 20px;">• NER for entities and acronyms</p>
+                            <div style="margin-bottom: 15px;">
+                                <p style="color: #764ba2; font-size: 0.8em; margin-bottom: 8px;"><strong>Stage 2: Hybrid Search Enhancement</strong></p>
+                                <p style="color: #e0e0e0; font-size: 0.7em; margin-left: 15px;">• Keywords for exact matches (F-35, UAV)</p>
+                                <p style="color: #e0e0e0; font-size: 0.7em; margin-left: 15px;">• Named Entity Recognition for acronyms</p>
+                                <p style="color: #00ff88; font-size: 0.75em; margin-left: 15px; font-weight: bold;">✓ Additional 5% recall improvement</p>
                             </div>
                             
                             <div style="background: rgba(0, 255, 136, 0.1); border-radius: 8px; padding: 15px; text-align: center;">
-                                <span style="color: #00ff88; font-size: 2.5em; font-weight: 900;">15%</span>
-                                <p style="color: #e0e0e0; font-size: 0.9em; margin-top: 5px;">Retrieval Accuracy Improvement</p>
-                                <p style="color: #b0b0b0; font-size: 0.75em; margin-top: 10px;">Critical for military compliance requirements</p>
+                                <span style="color: #00ff88; font-size: 2.5em; font-weight: 900;">20%</span>
+                                <p style="color: #e0e0e0; font-size: 0.9em; margin-top: 5px;">Total Recall Improvement</p>
+                                <p style="color: #b0b0b0; font-size: 0.7em; margin-top: 8px;">Re-ranker + Hybrid Search with minimal overhead</p>
                             </div>
                         </div>
                     </div>
@@ -538,6 +538,7 @@ Operational Environments:
                     </div>
                 </div>
             </section>
+
 
             <!-- Slide 13: LangGraph Orchestration - THE MAIN ACTION -->
             <section id="architecture">
