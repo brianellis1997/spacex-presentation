@@ -38,6 +38,8 @@ Reveal.on('slidechanged', event => {
         createJourneyTimeline();
     } else if (event.currentSlide.id === 'architecture') {
         setTimeout(() => createAgentArchitecture(), 100);
+    } else if (event.currentSlide.id === 'liaison-example') {
+        setTimeout(() => createLiaisonQueryFlow(), 100);
     }
 });
 
@@ -229,6 +231,9 @@ function initializeVisualization(slideId) {
             break;
         case 'architecture':
             setTimeout(() => createAgentArchitecture(), 100);
+            break;
+        case 'liaison-example':
+            setTimeout(() => createLiaisonQueryFlow(), 100);
             break;
         case 'parallel-processing':
             createParallelChart();
@@ -2108,6 +2113,425 @@ function createDocumentProcessingFlow() {
 }
 
 // Code tab switcher
+// Liaison Ad-hoc Query Flow Visualization
+function createLiaisonQueryFlow() {
+    // Clear any existing content
+    d3.select("#liaison-query-flow").selectAll("*").remove();
+    
+    const svg = d3.select("#liaison-query-flow")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 1920 1080")
+        .attr("preserveAspectRatio", "xMidYMid meet");
+    
+    // Define the complete workflow - BETTER HORIZONTAL SPACING
+    const steps = [
+        {
+            id: "liaison-query",
+            x: 200, y: 200,
+            title: "1. Liaison Query",
+            subtitle: "User Input",
+            content: "\"Give me MFIX 2025 participants\nin Field Site 1 with UAS tech\nand soldier counts\"",
+            color: "#667eea",
+            icon: "👤",
+            type: "input",
+            size: 280
+        },
+        {
+            id: "generator-analysis",
+            x: 580, y: 200,
+            title: "2. Generator Agent",
+            subtitle: "Query Analysis",
+            content: "THINKING: \"I need info from\nparticipant-experiment view\nfor location & participants\"",
+            color: "#00ff88",
+            icon: "🤖",
+            type: "thinking",
+            size: 280
+        },
+        {
+            id: "code-gen-1",
+            x: 960, y: 200,
+            title: "3. Code Generator",
+            subtitle: "First SQL Query",
+            content: "SELECT * FROM\nparticipant_experiment\nWHERE event='MFIX 2025'\nAND field_site='Site 1'",
+            color: "#ff6b35",
+            icon: "💻",
+            type: "code",
+            size: 280
+        },
+        {
+            id: "db-result-1",
+            x: 1340, y: 200,
+            title: "4. Database Result",
+            subtitle: "Partial Data",
+            content: "Returns: 12 participants\nwith IDs and basic info\n(no UAS/soldier data yet)",
+            color: "#764ba2",
+            icon: "📊",
+            type: "data",
+            size: 280
+        },
+        {
+            id: "generator-thinking",
+            x: 1720, y: 200,
+            title: "5. Generator Observes",
+            subtitle: "Next Decision",
+            content: "THINKING: \"Need UAS tech\nand soldier data from\nparticipant_requirements\"",
+            color: "#00ff88",
+            icon: "🧠",
+            type: "thinking",
+            size: 280
+        },
+        {
+            id: "generator-query",
+            x: 1720, y: 380,
+            title: "6. Generator Query",
+            subtitle: "Self-Generated Query",
+            content: "Generator creates:\n\"Get tech type and soldier count\nfor these 12 participant IDs\"",
+            color: "#00ff88",
+            icon: "📝",
+            type: "thinking",
+            size: 280
+        },
+        {
+            id: "code-gen-2",
+            x: 1340, y: 560,
+            title: "7. Code Generator",
+            subtitle: "Second SQL Query",
+            content: "SELECT technology_type,\nsoldier_count FROM\nparticipant_requirements\nWHERE participant_id IN (...)",
+            color: "#ff6b35",
+            icon: "💻",
+            type: "code",
+            size: 280
+        },
+        {
+            id: "db-result-2",
+            x: 960, y: 560,
+            title: "8. Database Result",
+            subtitle: "UAS & Soldier Data",
+            content: "Returns: Tech types & counts\n8 with UAS, 4 other tech\nSoldier counts: 15-45 each",
+            color: "#764ba2",
+            icon: "📊",
+            type: "data",
+            size: 280
+        },
+        {
+            id: "generator-final",
+            x: 580, y: 560,
+            title: "9. Generator Combines",
+            subtitle: "Data Processing",
+            content: "THINKING: \"I have all data.\nLet me write Python to join\nand filter UAS participants\"",
+            color: "#00ff88",
+            icon: "🤖",
+            type: "thinking",
+            size: 280
+        },
+        {
+            id: "python-join",
+            x: 200, y: 560,
+            title: "10. Python Processing",
+            subtitle: "Data Joining",
+            content: "result = merge_data(part_data,\nreq_data, on='participant_id')\nuas_filter = tech=='UAS'",
+            color: "#667eea",
+            icon: "🐍",
+            type: "code",
+            size: 280
+        },
+        {
+            id: "final-report",
+            x: 200, y: 740,
+            title: "11. Generated Report",
+            subtitle: "JSON to Frontend",
+            content: "8 UAS Participants:\nAlpha Corp (32 soldiers)\nBravo Systems (28 soldiers)\n...formatted table",
+            color: "#00ff88",
+            icon: "📋",
+            type: "output",
+            size: 280
+        }
+    ];
+    
+    // Define connections with data flow labels - INCLUDING MISSING GENERATOR QUERY
+    const connections = [
+        { from: "liaison-query", to: "generator-analysis", label: "natural language", dataFlow: "User query string" },
+        { from: "generator-analysis", to: "code-gen-1", label: "SQL request", dataFlow: "Query + Schema context" },
+        { from: "code-gen-1", to: "db-result-1", label: "execute", dataFlow: "SQL query execution" },
+        { from: "db-result-1", to: "generator-thinking", label: "partial data", dataFlow: "12 participant records" },
+        { from: "generator-thinking", to: "generator-query", label: "reasoning", dataFlow: "Analysis of missing data" },
+        { from: "generator-query", to: "code-gen-2", label: "new query", dataFlow: "Generated query + participant IDs" },
+        { from: "code-gen-2", to: "db-result-2", label: "execute", dataFlow: "SQL with WHERE IN clause" },
+        { from: "db-result-2", to: "generator-final", label: "tech data", dataFlow: "Technology & soldier data" },
+        { from: "generator-final", to: "python-join", label: "join request", dataFlow: "Python merge instruction" },
+        { from: "python-join", to: "final-report", label: "filtered data", dataFlow: "8 UAS participants + counts" }
+    ];
+    
+    // Create gradients for different step types
+    const defs = svg.append("defs");
+    
+    // Thinking gradient
+    const thinkingGradient = defs.append("linearGradient")
+        .attr("id", "thinking-gradient")
+        .attr("x1", "0%").attr("y1", "0%")
+        .attr("x2", "0%").attr("y2", "100%");
+    thinkingGradient.append("stop")
+        .attr("offset", "0%")
+        .style("stop-color", "#00ff88")
+        .style("stop-opacity", 0.3);
+    thinkingGradient.append("stop")
+        .attr("offset", "100%")
+        .style("stop-color", "#00ff88")
+        .style("stop-opacity", 0.1);
+    
+    // Code gradient
+    const codeGradient = defs.append("linearGradient")
+        .attr("id", "code-gradient")
+        .attr("x1", "0%").attr("y1", "0%")
+        .attr("x2", "0%").attr("y2", "100%");
+    codeGradient.append("stop")
+        .attr("offset", "0%")
+        .style("stop-color", "#ff6b35")
+        .style("stop-opacity", 0.3);
+    codeGradient.append("stop")
+        .attr("offset", "100%")
+        .style("stop-color", "#ff6b35")
+        .style("stop-opacity", 0.1);
+    
+    // Data gradient
+    const dataGradient = defs.append("linearGradient")
+        .attr("id", "data-gradient")
+        .attr("x1", "0%").attr("y1", "0%")
+        .attr("x2", "0%").attr("y2", "100%");
+    dataGradient.append("stop")
+        .attr("offset", "0%")
+        .style("stop-color", "#764ba2")
+        .style("stop-opacity", 0.3);
+    dataGradient.append("stop")
+        .attr("offset", "100%")
+        .style("stop-color", "#764ba2")
+        .style("stop-opacity", 0.1);
+    
+    // Arrow marker
+    defs.append("marker")
+        .attr("id", "flow-arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 8)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#667eea");
+    
+    // Draw connections first
+    connections.forEach((conn, i) => {
+        const fromStep = steps.find(s => s.id === conn.from);
+        const toStep = steps.find(s => s.id === conn.to);
+        
+        if (!fromStep || !toStep) return;
+        
+        // Calculate path - smart routing around obstacles with larger spacing
+        let path;
+        const stepRadius = (fromStep.size || 140) / 2;
+        if (Math.abs(fromStep.y - toStep.y) > 50) {
+            // Curved path for vertical connections
+            const midX = (fromStep.x + toStep.x) / 2;
+            const midY = (fromStep.y + toStep.y) / 2;
+            path = `M ${fromStep.x + stepRadius} ${fromStep.y} Q ${midX} ${midY} ${toStep.x - stepRadius} ${toStep.y}`;
+        } else {
+            // Straight path for horizontal connections
+            path = `M ${fromStep.x + stepRadius} ${fromStep.y} L ${toStep.x - stepRadius} ${toStep.y}`;
+        }
+        
+        const pathElement = svg.append("path")
+            .attr("d", path)
+            .attr("stroke", "#667eea")
+            .attr("stroke-width", 3)
+            .attr("fill", "none")
+            .attr("marker-end", "url(#flow-arrow)")
+            .attr("stroke-dasharray", "10,5")
+            .style("opacity", 0);
+        
+        // Animate path
+        pathElement
+            .transition()
+            .duration(800)
+            .delay(i * 500)
+            .style("opacity", 0.7);
+        
+        // Add data flow label
+        const midX = (fromStep.x + toStep.x) / 2;
+        const midY = (fromStep.y + toStep.y) / 2;
+        
+        svg.append("text")
+            .attr("x", midX)
+            .attr("y", midY - 25)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#b0b0b0")
+            .style("font-size", "20px")
+            .style("font-weight", "bold")
+            .style("opacity", 0)
+            .text(conn.dataFlow)
+            .transition()
+            .duration(400)
+            .delay(i * 500 + 400)
+            .style("opacity", 0.8);
+    });
+    
+    // Draw steps
+    steps.forEach((step, i) => {
+        const g = svg.append("g")
+            .attr("transform", `translate(${step.x}, ${step.y})`)
+            .style("opacity", 0);
+        
+        // Background shape based on type - MUCH LARGER
+        const stepSize = step.size || 140;
+        const rx = stepSize / 2;
+        const ry = stepSize / 2.3;
+        
+        let shape;
+        if (step.type === "thinking") {
+            // Cloud-like shape for thinking
+            shape = g.append("ellipse")
+                .attr("cx", 0)
+                .attr("cy", 0)
+                .attr("rx", rx)
+                .attr("ry", ry)
+                .attr("fill", "url(#thinking-gradient)")
+                .attr("stroke", step.color)
+                .attr("stroke-width", 4)
+                .attr("stroke-dasharray", "12,6");
+        } else if (step.type === "code") {
+            // Rectangle for code
+            shape = g.append("rect")
+                .attr("x", -rx)
+                .attr("y", -ry)
+                .attr("width", stepSize)
+                .attr("height", ry * 2)
+                .attr("rx", 15)
+                .attr("fill", "url(#code-gradient)")
+                .attr("stroke", step.color)
+                .attr("stroke-width", 4);
+        } else if (step.type === "data") {
+            // Diamond for data
+            shape = g.append("polygon")
+                .attr("points", `0,${-ry} ${rx},0 0,${ry} ${-rx},0`)
+                .attr("fill", "url(#data-gradient)")
+                .attr("stroke", step.color)
+                .attr("stroke-width", 4);
+        } else {
+            // Default ellipse for input/output
+            shape = g.append("ellipse")
+                .attr("cx", 0)
+                .attr("cy", 0)
+                .attr("rx", rx)
+                .attr("ry", ry)
+                .attr("fill", `${step.color}20`)
+                .attr("stroke", step.color)
+                .attr("stroke-width", 4);
+        }
+        
+        // Icon - LARGE FOR WELL-SPACED BOXES
+        g.append("text")
+            .attr("x", 0)
+            .attr("y", -70)
+            .attr("text-anchor", "middle")
+            .style("font-size", "64px")
+            .text(step.icon);
+        
+        // Title - LARGE
+        g.append("text")
+            .attr("x", 0)
+            .attr("y", -35)
+            .attr("text-anchor", "middle")
+            .attr("fill", step.color)
+            .style("font-size", "28px")
+            .style("font-weight", "bold")
+            .text(step.title);
+        
+        // Subtitle - READABLE
+        g.append("text")
+            .attr("x", 0)
+            .attr("y", -10)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#b0b0b0")
+            .style("font-size", "20px")
+            .style("font-style", "italic")
+            .text(step.subtitle);
+        
+        // Content - multiline support with CLEAR TEXT
+        const lines = step.content.split('\n');
+        lines.forEach((line, j) => {
+            g.append("text")
+                .attr("x", 0)
+                .attr("y", 20 + j * 24)
+                .attr("text-anchor", "middle")
+                .attr("fill", step.type === "thinking" ? "#00ff88" : "#e0e0e0")
+                .style("font-size", "19px")
+                .style("font-family", step.type === "code" ? "monospace" : "inherit")
+                .style("font-weight", step.type === "thinking" ? "bold" : "normal")
+                .text(line);
+        });
+        
+        // Animate step appearance
+        g.transition()
+            .duration(600)
+            .delay(i * 500)
+            .style("opacity", 1);
+    });
+    
+    // Add legend - POSITIONED BELOW EXPANDED DIAGRAM
+    const legend = svg.append("g")
+        .attr("transform", "translate(150, 950)")
+        .style("opacity", 0);
+    
+    legend.append("rect")
+        .attr("x", -40)
+        .attr("y", -20)
+        .attr("width", 1620)
+        .attr("height", 80)
+        .attr("rx", 15)
+        .attr("fill", "rgba(0, 0, 0, 0.9)")
+        .attr("stroke", "rgba(102, 126, 234, 0.6)")
+        .attr("stroke-width", 3);
+    
+    legend.append("text")
+        .attr("x", 30)
+        .attr("y", 0)
+        .attr("fill", "#fff")
+        .style("font-size", "20px")
+        .style("font-weight", "bold")
+        .text("Multi-Agent Flow Types:");
+    
+    const legendItems = [
+        { x: 60, text: "💬 User Input/Output", color: "#667eea" },
+        { x: 320, text: "🤖 Agent Thinking (dashed)", color: "#00ff88" },
+        { x: 620, text: "💻 Code Generation", color: "#ff6b35" },
+        { x: 850, text: "📊 Data Results", color: "#764ba2" }
+    ];
+    
+    legendItems.forEach(item => {
+        legend.append("text")
+            .attr("x", item.x)
+            .attr("y", 25)
+            .attr("fill", item.color)
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .text(item.text);
+    });
+    
+    legend.append("text")
+        .attr("x", 30)
+        .attr("y", 45)
+        .attr("fill", "#b0b0b0")
+        .style("font-size", "14px")
+        .text("Shows complete reasoning trail from user query to final report with full audit capability");
+    
+    legend.transition()
+        .duration(800)
+        .delay(5000)
+        .style("opacity", 1);
+}
+
 window.showCodeTab = function(tab) {
     // Hide all code contents
     document.querySelectorAll('.code-content').forEach(content => {
