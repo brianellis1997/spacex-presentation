@@ -1046,6 +1046,197 @@
     border-top: 1px solid rgba(0, 255, 136, 0.2);
 }
 
+/* Why AI in SpaceX - NEW SLIDE Styles */
+.spacex-ai-vision {
+    margin: 30px 0;
+}
+
+.ai-imperative {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 25px;
+    background: rgba(0, 255, 136, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.ai-imperative h3 {
+    color: var(--success-green);
+    font-size: 1.4em;
+    margin-bottom: 15px;
+}
+
+.ai-imperative p {
+    color: #e0e0e0;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.practical-applications {
+    margin: 40px 0;
+}
+
+.application-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.app-card {
+    background: rgba(102, 126, 234, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.app-card:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+}
+
+.app-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.app-card h4 {
+    color: var(--accent-blue);
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+.app-card p {
+    color: #e0e0e0;
+    font-size: 0.8em;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.app-card small {
+    color: var(--success-green);
+    font-size: 0.7em;
+    font-weight: 600;
+    font-style: italic;
+    display: block;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 255, 136, 0.2);
+    text-align: center;
+}
+
+.why-now {
+    margin: 30px 0;
+    padding: 25px;
+    background: rgba(255, 107, 53, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+.why-now h3 {
+    color: var(--warning-orange);
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.timing-factors {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.timing-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 107, 53, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.timing-item:hover {
+    background: rgba(255, 107, 53, 0.1);
+    transform: translateX(10px);
+}
+
+.timing-icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.timing-item div {
+    color: #e0e0e0;
+    font-size: 0.85em;
+    line-height: 1.4;
+}
+
+.timing-item strong {
+    color: var(--warning-orange);
+}
+
+.value-prop {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.value-statement {
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(0, 82, 136, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
+    border-radius: 15px;
+    border: 2px solid rgba(0, 255, 136, 0.3);
+}
+
+.value-statement h3 {
+    color: var(--success-green);
+    font-size: 1.4em;
+    margin-bottom: 20px;
+}
+
+.value-statement p {
+    color: #e0e0e0;
+    font-size: 0.9em;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.value-statement .highlight {
+    color: var(--success-green);
+    font-weight: 700;
+    font-size: 1.1em;
+    display: block;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.problem-connection {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.problem-connection h3 {
+    color: var(--accent-blue);
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.problem-connection p {
+    color: #e0e0e0;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
 /* Why SpaceX Styles */
 .why-spacex-content {
     display: grid;
