@@ -494,19 +494,17 @@ function createAgentArchitecture() {
         .attr('d', 'M 0 0 L 10 5 L 0 10 z')
         .attr('fill', '#667eea');
     
-    // Circle marker for agentic decisions
+    // Purple arrowhead for agentic decisions
     defs.append('marker')
-        .attr('id', 'circlehead')
+        .attr('id', 'purplearrowhead')
         .attr('viewBox', '0 0 10 10')
-        .attr('refX', 5)
+        .attr('refX', 9)
         .attr('refY', 5)
-        .attr('markerWidth', 8)
-        .attr('markerHeight', 8)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
         .attr('orient', 'auto')
-        .append('circle')
-        .attr('cx', 5)
-        .attr('cy', 5)
-        .attr('r', 3)
+        .append('path')
+        .attr('d', 'M 0 0 L 10 5 L 0 10 z')
         .attr('fill', '#764ba2');
     
     // Node positions - much more spread out and organic layout
@@ -558,27 +556,48 @@ function createAgentArchitecture() {
         { source: "database", target: "reports", label: "reports", agentic: false }
     ];
     
+    // Helper function to calculate intersection point with ellipse
+    function getEllipseIntersection(centerX, centerY, rx, ry, targetX, targetY) {
+        const dx = targetX - centerX;
+        const dy = targetY - centerY;
+        const angle = Math.atan2(dy, dx);
+        return {
+            x: centerX + rx * Math.cos(angle),
+            y: centerY + ry * Math.sin(angle)
+        };
+    }
+
     // Draw links
     links.forEach((link, i) => {
         const source = nodes[link.source];
         const target = nodes[link.target];
         
+        // Calculate ellipse radii for source and target
+        const sourceRx = (source.size || 60) / 2;
+        const sourceRy = (source.size || 60) / 3;
+        const targetRx = (target.size || 60) / 2;
+        const targetRy = (target.size || 60) / 3;
+        
+        // Calculate start and end points on ellipse boundaries
+        const startPoint = getEllipseIntersection(source.x, source.y, sourceRx, sourceRy, target.x, target.y);
+        const endPoint = getEllipseIntersection(target.x, target.y, targetRx, targetRy, source.x, source.y);
+        
         let path;
         if (link.curved) {
             // More organic curved paths
-            const midX = (source.x + target.x) / 2;
+            const midX = (startPoint.x + endPoint.x) / 2;
             const offset = link.curveOffset || -80;
-            const midY = Math.min(source.y, target.y) + offset;
-            path = `M ${source.x} ${source.y} Q ${midX} ${midY} ${target.x} ${target.y}`;
+            const midY = Math.min(startPoint.y, endPoint.y) + offset;
+            path = `M ${startPoint.x} ${startPoint.y} Q ${midX} ${midY} ${endPoint.x} ${endPoint.y}`;
         } else {
             // Slightly curved "straight" lines for more organic feel
-            const midX = (source.x + target.x) / 2;
-            const curvature = (source.x < target.x && source.y !== target.y) ? 15 : 0;
-            const midY = (source.y + target.y) / 2 + curvature;
+            const midX = (startPoint.x + endPoint.x) / 2;
+            const curvature = (startPoint.x < endPoint.x && startPoint.y !== endPoint.y) ? 15 : 0;
+            const midY = (startPoint.y + endPoint.y) / 2 + curvature;
             if (curvature > 0) {
-                path = `M ${source.x} ${source.y} Q ${midX} ${midY} ${target.x} ${target.y}`;
+                path = `M ${startPoint.x} ${startPoint.y} Q ${midX} ${midY} ${endPoint.x} ${endPoint.y}`;
             } else {
-                path = `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+                path = `M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`;
             }
         }
         
@@ -587,7 +606,7 @@ function createAgentArchitecture() {
             .attr('stroke', link.agentic ? '#764ba2' : '#667eea')
             .attr('stroke-width', 2)
             .attr('fill', 'none')
-            .attr('marker-end', link.agentic ? 'url(#circlehead)' : 'url(#arrowhead)')
+            .attr('marker-end', link.agentic ? 'url(#purplearrowhead)' : 'url(#arrowhead)')
             .attr('opacity', 0);
         
         if (link.agentic) {
@@ -616,8 +635,8 @@ function createAgentArchitecture() {
         }
         
         // Add label with offset for curved paths
-        const labelX = (source.x + target.x) / 2;
-        let labelY = (source.y + target.y) / 2;
+        const labelX = (startPoint.x + endPoint.x) / 2;
+        let labelY = (startPoint.y + endPoint.y) / 2;
         
         // Offset curved path labels
         if (link.curved) {
