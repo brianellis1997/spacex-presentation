@@ -507,26 +507,26 @@ function createAgentArchitecture() {
         .attr('d', 'M 0 0 L 10 5 L 0 10 z')
         .attr('fill', '#764ba2');
     
-    // Node positions - much more spread out and organic layout
+    // Node positions - much more spread out and organic layout with larger sizes
     const nodes = {
         // Main flow - organic positioning with more space
-        user: { x: 80, y: 80, label: "User Input", color: "#667eea", icon: "👤", size: 70 },
-        retrieval: { x: 300, y: 60, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍", size: 80 },
-        generator: { x: 750, y: 120, label: "Generator\nAgent", color: "#667eea", icon: "🤖", size: 100 },
-        auditor: { x: 1150, y: 80, label: "Auditor/\nReflection", color: "#00ff88", icon: "✅", size: 80 },
-        output: { x: 1380, y: 100, label: "User Output", color: "#667eea", icon: "📤", size: 70 },
+        user: { x: 80, y: 80, label: "User Input", color: "#667eea", icon: "👤", size: 90 },
+        retrieval: { x: 300, y: 60, label: "Auto Retrieval\n(pgvector)", color: "#ff6b35", icon: "🔍", size: 100 },
+        generator: { x: 750, y: 120, label: "Generator\nAgent", color: "#667eea", icon: "🤖", size: 120 },
+        auditor: { x: 1150, y: 80, label: "Auditor/\nReflection", color: "#00ff88", icon: "✅", size: 100 },
+        output: { x: 1380, y: 100, label: "User Output", color: "#667eea", icon: "📤", size: 90 },
         
         // Specialized agents - much more spread with organic positioning
-        codeGen: { x: 450, y: 320, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖", size: 90 },
-        tools: { x: 950, y: 280, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧", size: 85 },
+        codeGen: { x: 450, y: 320, label: "SQL Code\nGenerator", color: "#00ff88", icon: "🤖", size: 110 },
+        tools: { x: 950, y: 280, label: "Tool Node\n(Python, API)", color: "#ff6b35", icon: "🔧", size: 105 },
         
         // Document processing pipeline - separate from user input
-        docUpload: { x: 80, y: 400, label: "Document\nUpload", color: "#667eea", icon: "📁", size: 75 },
-        docParser: { x: 250, y: 480, label: "Document\nParser", color: "#ff6b35", icon: "📄", size: 80 },
-        questionProc: { x: 550, y: 520, label: "Question\nProcessor", color: "#ff6b35", icon: "🔍", size: 75 },
-        qaAgent: { x: 900, y: 480, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖", size: 90 },
-        database: { x: 1200, y: 520, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾", size: 80 },
-        reports: { x: 1420, y: 480, label: "Dynamic\nReports", color: "#ff6b35", icon: "📊", size: 85 }
+        docUpload: { x: 80, y: 400, label: "Document\nUpload", color: "#667eea", icon: "📁", size: 95 },
+        docParser: { x: 250, y: 480, label: "Document\nParser", color: "#ff6b35", icon: "📄", size: 100 },
+        questionProc: { x: 550, y: 520, label: "Question\nProcessor", color: "#ff6b35", icon: "🔍", size: 95 },
+        qaAgent: { x: 900, y: 480, label: "Q&A Agent\n(Template)", color: "#764ba2", icon: "🤖", size: 110 },
+        database: { x: 1200, y: 520, label: "Update DB\n(Answers)", color: "#764ba2", icon: "💾", size: 100 },
+        reports: { x: 1420, y: 480, label: "Dynamic\nReports", color: "#ff6b35", icon: "📊", size: 105 }
     };
     
     // Create links - corrected flow and agentic decisions
@@ -572,11 +572,11 @@ function createAgentArchitecture() {
         const source = nodes[link.source];
         const target = nodes[link.target];
         
-        // Calculate ellipse radii for source and target
-        const sourceRx = (source.size || 60) / 2;
-        const sourceRy = (source.size || 60) / 3;
-        const targetRx = (target.size || 60) / 2;
-        const targetRy = (target.size || 60) / 3;
+        // Calculate ellipse radii for source and target - updated to match larger ellipses
+        const sourceRx = (source.size || 60) * 0.65;
+        const sourceRy = (source.size || 60) * 0.45;
+        const targetRx = (target.size || 60) * 0.65;
+        const targetRy = (target.size || 60) * 0.45;
         
         // Calculate start and end points on ellipse boundaries
         const startPoint = getEllipseIntersection(source.x, source.y, sourceRx, sourceRy, target.x, target.y);
@@ -680,12 +680,12 @@ function createAgentArchitecture() {
             .attr('transform', `translate(${node.x}, ${node.y})`)
             .style('cursor', 'pointer');
         
-        // Dynamic elliptical shape for more organic look
+        // Dynamic elliptical shape for more organic look - larger to accommodate text
         g.append('ellipse')
             .attr('cx', 0)
             .attr('cy', 0)
-            .attr('rx', nodeSize/2)
-            .attr('ry', nodeSize/3)
+            .attr('rx', nodeSize * 0.65)  // Increased from /2 to *0.65 for more width
+            .attr('ry', nodeSize * 0.45)  // Increased from /3 to *0.45 for more height
             .attr('fill', `${node.color}20`)
             .attr('stroke', node.color)
             .attr('stroke-width', 3)
@@ -701,7 +701,7 @@ function createAgentArchitecture() {
             .attr('x', 0)
             .attr('y', -5)
             .attr('text-anchor', 'middle')
-            .style('font-size', '24px')
+            .style('font-size', '30px')
             .style('opacity', 0)
             .text(node.icon)
             .transition()
@@ -714,10 +714,11 @@ function createAgentArchitecture() {
         labelLines.forEach((line, j) => {
             g.append('text')
                 .attr('x', 0)
-                .attr('y', 15 + j * 12)
+                .attr('y', 20 + j * 16)
                 .attr('text-anchor', 'middle')
                 .attr('fill', '#fff')
-                .style('font-size', '12px')
+                .style('font-size', '15px')
+                .style('font-weight', '500')
                 .style('opacity', 0)
                 .text(line)
                 .transition()
@@ -727,65 +728,65 @@ function createAgentArchitecture() {
         });
     });
     
-    // Add legend for line types
+    // Add legend for line types - moved to bottom left corner and made smaller
     const legend = svg.append('g')
-        .attr('transform', 'translate(50, 600)')
-        .style('opacity', 0);
+        .attr('transform', 'translate(10, 670)')
+        .style('opacity', 0.7);
     
-    // Legend background
+    // Legend background - smaller and less intrusive
     legend.append('rect')
-        .attr('x', -10)
+        .attr('x', -5)
         .attr('y', -5)
-        .attr('width', 320)
-        .attr('height', 80)
-        .attr('rx', 10)
-        .attr('fill', 'rgba(0, 0, 0, 0.6)')
-        .attr('stroke', 'rgba(102, 126, 234, 0.3)')
+        .attr('width', 240)
+        .attr('height', 45)
+        .attr('rx', 5)
+        .attr('fill', 'rgba(0, 0, 0, 0.4)')
+        .attr('stroke', 'rgba(102, 126, 234, 0.2)')
         .attr('stroke-width', 1);
     
-    // Legend title
+    // Legend title - smaller
     legend.append('text')
         .attr('x', 5)
-        .attr('y', 15)
-        .attr('fill', '#fff')
-        .style('font-size', '14px')
+        .attr('y', 12)
+        .attr('fill', '#aaa')
+        .style('font-size', '10px')
         .style('font-weight', 'bold')
         .text('Arrow Types:');
     
-    // Solid line example
+    // Solid line example - smaller
     legend.append('line')
         .attr('x1', 10)
-        .attr('y1', 35)
-        .attr('x2', 60)
-        .attr('y2', 35)
+        .attr('y1', 25)
+        .attr('x2', 40)
+        .attr('y2', 25)
         .attr('stroke', '#667eea')
-        .attr('stroke-width', 3)
+        .attr('stroke-width', 2)
         .attr('marker-end', 'url(#arrowhead)');
     
     legend.append('text')
-        .attr('x', 70)
-        .attr('y', 39)
-        .attr('fill', '#e0e0e0')
-        .style('font-size', '12px')
-        .text('Programmatic workflows');
+        .attr('x', 45)
+        .attr('y', 28)
+        .attr('fill', '#999')
+        .style('font-size', '9px')
+        .text('Programmatic');
     
-    // Dashed line example
+    // Dashed line example - smaller
     legend.append('line')
-        .attr('x1', 10)
-        .attr('y1', 55)
-        .attr('x2', 60)
-        .attr('y2', 55)
+        .attr('x1', 125)
+        .attr('y1', 25)
+        .attr('x2', 155)
+        .attr('y2', 25)
         .attr('stroke', '#764ba2')
-        .attr('stroke-width', 3)
+        .attr('stroke-width', 2)
         .attr('stroke-dasharray', '8,4')
         .attr('marker-end', 'url(#circlehead)');
     
     legend.append('text')
-        .attr('x', 70)
-        .attr('y', 59)
-        .attr('fill', '#e0e0e0')
-        .style('font-size', '12px')
-        .text('Agentic decisions');
+        .attr('x', 160)
+        .attr('y', 28)
+        .attr('fill', '#999')
+        .style('font-size', '9px')
+        .text('Agentic');
     
     // Animate legend in after nodes are drawn
     legend.transition()
