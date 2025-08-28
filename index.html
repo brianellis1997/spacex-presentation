@@ -181,7 +181,7 @@
                 <div class="challenges-compact" style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 20px 0;">
                     <div class="challenge-item" style="background: rgba(102, 126, 234, 0.05); border: 1px solid #667eea; border-radius: 15px; padding: 30px; min-height: 150px;">
                         <h3 style="color: #667eea; margin-bottom: 15px; font-size: 1.2em;">1. Structured Data at Scale</h3>
-                        <p style="font-size: 1em; margin-bottom: 12px;"><strong>Problem:</strong> Excel with 1000s rows</p>
+                        <p style="font-size: 1em; margin-bottom: 12px;"><strong>Problem:</strong> Excel with 100s rows</p>
                         <p style="font-size: 1em; color: #00ff88;"><strong>Solution:</strong> SQL Generator</p>
                     </div>
                     <div class="challenge-item" style="background: rgba(118, 75, 162, 0.05); border: 1px solid #764ba2; border-radius: 15px; padding: 30px; min-height: 150px;">
@@ -192,7 +192,7 @@
                     <div class="challenge-item" style="background: rgba(255, 107, 53, 0.05); border: 1px solid #ff6b35; border-radius: 15px; padding: 30px; min-height: 150px;">
                         <h3 style="color: #ff6b35; margin-bottom: 15px; font-size: 1.2em;">3. Retrieval Accuracy</h3>
                         <p style="font-size: 1em; margin-bottom: 12px;"><strong>Problem:</strong> Semantic vs keyword mismatch</p>
-                        <p style="font-size: 1em; color: #00ff88;"><strong>Solution:</strong> Hybrid Search (20% recall gain)</p>
+                        <p style="font-size: 1em; color: #00ff88;"><strong>Solution:</strong> Hybrid Search (75% → 95% recall)</p>
                     </div>
                     <div class="challenge-item" style="background: rgba(0, 255, 136, 0.05); border: 1px solid #00ff88; border-radius: 15px; padding: 30px; min-height: 150px;">
                         <h3 style="color: #00ff88; margin-bottom: 15px; font-size: 1.2em;">4. Manual Processing</h3>
@@ -215,7 +215,7 @@
                     <div style="flex: 1; background: rgba(255, 107, 53, 0.05); border: 1px solid #ff6b35; border-radius: 10px; padding: 20px;">
                         <h4 style="color: #ff6b35; margin-bottom: 15px;">The Problem: Structured Files</h4>
                         <img src="./structured_file.png" alt="Excel File" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
-                        <p style="color: #b0b0b0; font-size: 0.7em; margin-bottom: 10px;">Original Excel file with 1000s of records</p>
+                        <p style="color: #b0b0b0; font-size: 0.7em; margin-bottom: 10px;">Original Excel file with 100s of records</p>
                         <pre style="background: #1e1e1e; padding: 10px; border-radius: 8px; font-size: 0.5em; overflow-x: auto; max-height: 150px;"><code style="color: #e0e0e0;">[
     {
         "LastName": "Soldier",
@@ -230,7 +230,7 @@
         "SPT_Raw": 12.5,
         "Total": 600
     },
-    // ... 1000s more records
+    // ... 100s more records
 ]</code></pre>
                         <p style="color: #ff6b35; font-size: 0.75em; margin-top: 10px;"><strong>Issues:</strong> Context window fills up, hallucinates</p>
                     </div>
@@ -332,18 +332,18 @@ Operational Environments:
                             <h4 style="color: #667eea; margin-bottom: 15px;">Retrieval Architecture & Results</h4>
                             
                             <div style="margin-bottom: 15px;">
-                                <p style="color: #ff6b35; font-size: 0.8em; margin-bottom: 8px;"><strong>Stage 1: Re-ranker with Cross-Encoder</strong></p>
-                                <p style="color: #00ff88; font-size: 0.75em; margin-left: 15px; font-weight: bold;">✓ 15% recall improvement</p>
+                                <p style="color: #ff6b35; font-size: 0.8em; margin-bottom: 8px;"><strong>Baseline Performance</strong></p>
+                                <p style="color: #e0e0e0; font-size: 0.75em; margin-left: 15px; font-weight: bold;">75% recall</p>
                             </div>
                             
                             <div style="margin-bottom: 15px;">
-                                <p style="color: #764ba2; font-size: 0.8em; margin-bottom: 8px;"><strong>Stage 2: Hybrid Search Enhancement</strong></p>
-                                <p style="color: #00ff88; font-size: 0.75em; margin-left: 15px; font-weight: bold;">✓ Additional 5% recall improvement</p>
+                                <p style="color: #764ba2; font-size: 0.8em; margin-bottom: 8px;"><strong>Stage 1: Re-ranker + Stage 2: Hybrid Search</strong></p>
+                                <p style="color: #00ff88; font-size: 0.75em; margin-left: 15px; font-weight: bold;">✓ 20% improvement (15% + 5%)</p>
                             </div>
                             
                             <div style="background: rgba(0, 255, 136, 0.1); border-radius: 8px; padding: 15px; text-align: center;">
-                                <span style="color: #00ff88; font-size: 2.5em; font-weight: 900;">20%</span>
-                                <p style="color: #e0e0e0; font-size: 0.9em; margin-top: 5px;">Total Recall Improvement</p>
+                                <span style="color: #00ff88; font-size: 2.5em; font-weight: 900;">95%</span>
+                                <p style="color: #e0e0e0; font-size: 0.9em; margin-top: 5px;">Final Recall</p>
                             </div>
                         </div>
                     </div>
@@ -376,7 +376,7 @@ Operational Environments:
                                     <i class="fas fa-search" style="color: #ff6b35; font-size: 1.2em; margin-right: 12px;"></i>
                                     <div>
                                         <p style="color: #ff6b35; font-weight: bold; margin: 0; font-size: 0.85em;">2. Read & Search</p>
-                                        <p style="color: #b0b0b0; font-size: 0.7em; margin: 0;">Ctrl+F through 100+ pages per doc</p>
+                                        <p style="color: #b0b0b0; font-size: 0.7em; margin: 0;">Ctrl+F through dozens of pages per doc</p>
                                     </div>
                                 </div>
                                 
@@ -758,30 +758,7 @@ def evaluate_models(models, eval_type):
                 </div>
             </section>
 
-            <!-- Slide 18: Scalability & Generalization -->
-            <section id="scalability">
-                <h2>Scalable & Generalizable Architecture</h2>
-                <div class="scalability-diagram">
-                    <svg id="scale-viz" width="100%" height="400"></svg>
-                </div>
-                <div class="scale-features">
-                    <div class="scale-item fragment">
-                        <h4>Plug & Play Agents</h4>
-                        <p>Add capabilities without touching core</p>
-                    </div>
-                    <div class="scale-item fragment">
-                        <h4>Domain Agnostic</h4>
-                        <p>Used by 3 other teams</p>
-                        <small>$3M+ additional contracts</small>
-                    </div>
-                    <div class="scale-item fragment">
-                        <h4>Auto-scaling</h4>
-                        <p>Handles 10x load, same latency</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Slide 19: Lessons Learned -->
+            <!-- Slide 18: Lessons Learned -->
             <section id="lessons">
                 <h2>Key Lessons Learned</h2>
                 <div class="lessons-grid">
