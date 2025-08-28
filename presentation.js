@@ -1811,15 +1811,6 @@ function createDynamicSQLGenerator() {
             shape: "blob",
             icon: "💬"
         },
-        mcpPrompt: { 
-            x: 220, y: 300, 
-            label: "MCP Dynamic\nPrompt", 
-            example: "Schema-aware prompt\ngeneration", 
-            color: "#00ff88",
-            size: 230,
-            shape: "organic",
-            icon: "📋"
-        },
         dbSchema: { 
             x: 220, y: 450, 
             label: "PostgreSQL Schema", 
@@ -1870,7 +1861,6 @@ function createDynamicSQLGenerator() {
     // Define connections showing simultaneous input
     const connections = [
         { from: "userQuery", to: "codeGenerator", label: "natural language", style: "curved" },
-        { from: "mcpPrompt", to: "codeGenerator", label: "instruction", style: "straight" },
         { from: "dbSchema", to: "codeGenerator", label: "schema context", style: "curved" },
         { from: "codeGenerator", to: "sqlQuery", label: "generates", style: "straight" },
         { from: "sqlQuery", to: "execution", label: "executes", style: "straight" },
